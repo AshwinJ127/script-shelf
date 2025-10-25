@@ -4,7 +4,7 @@ const express = require('express');
 const cors = require('cors');
 
 const app = express();
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 5173;
 
 // === Middleware ===
 // Enable Cross-Origin Resource Sharing so your front-end can talk to your back-end
