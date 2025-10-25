@@ -7,6 +7,7 @@ function Dashboard() {
       <header className="dashboard-header">
         <h1>Script Shelf</h1>
         <p>Your personal script collection and automation hub</p>
+        <p>Built by shreyanshcoder</p>
       </header>
       
       <div className="dashboard-grid">
