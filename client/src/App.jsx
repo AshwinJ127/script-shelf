@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import './App.css'
+import Dashboard from './dashboard'
 
 function Sidebar() {
   const menuItems = [
@@ -31,41 +32,11 @@ function Sidebar() {
 }
 
 function App() {
-  const [count, setCount] = useState(0)
-
   return (
     <div className="app">
       <Sidebar />
       <div className="main-content">
-        <header className="main-header">
-          <h1>Dashboard</h1>
-        </header>
-        <div className="dashboard-content">
-          <div className="card">
-            <h3>Welcome to Script Shelf</h3>
-            <p>Your personal script management dashboard</p>
-            <button onClick={() => setCount((count) => count + 1)}>
-              Count is {count}
-            </button>
-          </div>
-          <div className="card">
-            <h3>Quick Stats</h3>
-            <div className="stats-grid">
-              <div className="stat-item">
-                <span className="stat-number">12</span>
-                <span className="stat-label">Total Scripts</span>
-              </div>
-              <div className="stat-item">
-                <span className="stat-number">5</span>
-                <span className="stat-label">Active</span>
-              </div>
-              <div className="stat-item">
-                <span className="stat-number">3</span>
-                <span className="stat-label">Recent</span>
-              </div>
-            </div>
-          </div>
-        </div>
+        <Dashboard />
       </div>
     </div>
   )
