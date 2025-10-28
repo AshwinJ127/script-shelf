@@ -1,6 +1,9 @@
+import { useState } from 'react' // Import useState
 import './App.css'
 
 function Sidebar() {
+  const [activeItem, setActiveItem] = useState('dashboard') // Add state for active item
+
   const menuItems = [
     { id: 'dashboard', label: 'Dashboard', icon: '📊' },
     { id: 'scripts', label: 'Scripts', icon: '📜' },
@@ -17,7 +20,13 @@ function Sidebar() {
         <ul>
           {menuItems.map(item => (
             <li key={item.id}>
-              <a href="#" className="nav-item">
+              <a
+                href="#"
+                // Add click handler to update state
+                onClick={() => setActiveItem(item.id)}
+                // Conditionally apply 'active' class
+                className={`nav-item ${activeItem === item.id ? 'active' : ''}`}
+              >
                 <span className="nav-icon">{item.icon}</span>
                 <span className="nav-label">{item.label}</span>
               </a>
@@ -30,8 +39,6 @@ function Sidebar() {
 }
 
 function App() {
-  // Removed the unused useState hook
-
   return (
     <div className="app">
       <Sidebar />
@@ -43,7 +50,6 @@ function App() {
           <div className="card">
             <h3>Welcome to Script Shelf</h3>
             <p>Your personal script management dashboard</p>
-            {/* Removed the placeholder counter button */}
           </div>
           <div className="card">
             <h3>Quick Stats</h3>
