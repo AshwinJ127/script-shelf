@@ -13,7 +13,7 @@ function Login({ onLoginSuccess, onSwitchToRegister }) {
     setMessage('');
 
     try {
-      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5050';
       // We post to the /login endpoint
       const response = await axios.post(`${apiUrl}/api/users/login`, {
         email,

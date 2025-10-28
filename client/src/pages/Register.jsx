@@ -11,7 +11,7 @@ function Register({ onRegisterSuccess }) {
     setMessage('');
 
     try {
-      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5050';
       const response = await axios.post(`${apiUrl}/api/users/register`, {
         email,
         password,
