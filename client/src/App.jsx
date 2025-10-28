@@ -1,7 +1,6 @@
 import { useState } from 'react'
 import './App.css'
 
-// 1. Sidebar now receives activeItem and setActiveItem as props
 function Sidebar({ activeItem, setActiveItem }) {
   const menuItems = [
     { id: 'dashboard', label: 'Dashboard', icon: '📊' },
@@ -21,8 +20,8 @@ function Sidebar({ activeItem, setActiveItem }) {
             <li key={item.id}>
               <a
                 href="#"
-                onClick={() => setActiveItem(item.id)} // Uses the prop
-                className={`nav-item ${activeItem === item.id ? 'active' : ''}`} // Uses the prop
+                onClick={() => setActiveItem(item.id)}
+                className={`nav-item ${activeItem === item.id ? 'active' : ''}`}
               >
                 <span className="nav-icon">{item.icon}</span>
                 <span className="nav-label">{item.label}</span>
@@ -36,14 +35,12 @@ function Sidebar({ activeItem, setActiveItem }) {
 }
 
 function App() {
-  // 2. State is now managed in the parent App component
   const [activeItem, setActiveItem] = useState('dashboard')
 
-  // Helper to get the label for the header
   const getActivePageLabel = () => {
     const menuItems = [
       { id: 'dashboard', label: 'Dashboard' },
-      { id: 'scripts', label: 'Scripts' },
+      { ids: 'scripts', label: 'Scripts' },
       { id: 'settings', label: 'Settings' },
       { id: 'help', label: 'Help' }
     ]
@@ -51,13 +48,15 @@ function App() {
   }
 
   return (
-    <div className="app">
-      {/* 3. Pass state and setter down to Sidebar */}
+    // 1. Added width: '100vw' to fill the viewport width
+    <div
+      className="app-layout"
+      style={{ display: 'flex', height: '100vh', width: '100vw' }}
+    >
       <Sidebar activeItem={activeItem} setActiveItem={setActiveItem} />
 
-      <div className="main-content">
+      <div className="main-content" style={{ flex: 1, overflowY: 'auto' }}>
         <header className="main-header">
-          {/* 4. Header now dynamically updates based on state */}
           <h1>{getActivePageLabel()}</h1>
         </header>
         <div className="dashboard-content">
