@@ -1,4 +1,3 @@
-import { useState } from 'react'
 import './App.css'
 
 function Sidebar() {
@@ -31,7 +30,7 @@ function Sidebar() {
 }
 
 function App() {
-  const [count, setCount] = useState(0)
+  // Removed the unused useState hook
 
   return (
     <div className="app">
@@ -44,9 +43,7 @@ function App() {
           <div className="card">
             <h3>Welcome to Script Shelf</h3>
             <p>Your personal script management dashboard</p>
-            <button onClick={() => setCount((count) => count + 1)}>
-              Count is {count}
-            </button>
+            {/* Removed the placeholder counter button */}
           </div>
           <div className="card">
             <h3>Quick Stats</h3>
