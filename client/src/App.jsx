@@ -1,9 +1,8 @@
-import { useState } from 'react' // Import useState
+import { useState } from 'react'
 import './App.css'
 
-function Sidebar() {
-  const [activeItem, setActiveItem] = useState('dashboard') // Add state for active item
-
+// 1. Sidebar now receives activeItem and setActiveItem as props
+function Sidebar({ activeItem, setActiveItem }) {
   const menuItems = [
     { id: 'dashboard', label: 'Dashboard', icon: '📊' },
     { id: 'scripts', label: 'Scripts', icon: '📜' },
@@ -22,10 +21,8 @@ function Sidebar() {
             <li key={item.id}>
               <a
                 href="#"
-                // Add click handler to update state
-                onClick={() => setActiveItem(item.id)}
-                // Conditionally apply 'active' class
-                className={`nav-item ${activeItem === item.id ? 'active' : ''}`}
+                onClick={() => setActiveItem(item.id)} // Uses the prop
+                className={`nav-item ${activeItem === item.id ? 'active' : ''}`} // Uses the prop
               >
                 <span className="nav-icon">{item.icon}</span>
                 <span className="nav-label">{item.label}</span>
@@ -39,12 +36,29 @@ function Sidebar() {
 }
 
 function App() {
+  // 2. State is now managed in the parent App component
+  const [activeItem, setActiveItem] = useState('dashboard')
+
+  // Helper to get the label for the header
+  const getActivePageLabel = () => {
+    const menuItems = [
+      { id: 'dashboard', label: 'Dashboard' },
+      { id: 'scripts', label: 'Scripts' },
+      { id: 'settings', label: 'Settings' },
+      { id: 'help', label: 'Help' }
+    ]
+    return menuItems.find(item => item.id === activeItem)?.label || 'Dashboard'
+  }
+
   return (
     <div className="app">
-      <Sidebar />
+      {/* 3. Pass state and setter down to Sidebar */}
+      <Sidebar activeItem={activeItem} setActiveItem={setActiveItem} />
+
       <div className="main-content">
         <header className="main-header">
-          <h1>Dashboard</h1>
+          {/* 4. Header now dynamically updates based on state */}
+          <h1>{getActivePageLabel()}</h1>
         </header>
         <div className="dashboard-content">
           <div className="card">
