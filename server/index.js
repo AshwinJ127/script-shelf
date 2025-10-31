@@ -7,7 +7,7 @@ const jwt = require('jsonwebtoken'); // For creating login tokens
 const { Pool } = require('pg'); // For connecting to Postgres
 
 const app = express();
-const PORT = process.env.PORT || 5050; // It will use 5050 if it's in your .env
+const PORT = process.env.PORT || 5050; 
 
 // === Database Connection ===
 const pool = new Pool({

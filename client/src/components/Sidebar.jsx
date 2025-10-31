@@ -11,7 +11,6 @@ function Sidebar({ activeItem, setActiveItem }) {
   ];
 
   return (
-    // We'll assume 'sidebar', 'sidebar-header', etc., are styled in your App.css
     <div className="sidebar"> 
       <div className="sidebar-header">
         <h2>Script Shelf</h2>

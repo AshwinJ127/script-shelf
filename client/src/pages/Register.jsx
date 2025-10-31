@@ -22,8 +22,6 @@ function Register({ onRegisterSuccess }) {
       setEmail('');
       setPassword('');
       
-      // Call the onRegisterSuccess prop to update App state
-      // We'll add a small delay so the user can see the success message
       setTimeout(() => {
         if(onRegisterSuccess) {
           onRegisterSuccess();
@@ -36,7 +34,6 @@ function Register({ onRegisterSuccess }) {
     }
   };
 
-  // Conditional styles for the message
   const messageStyle = {
     marginTop: '1rem',
     textAlign: 'center',
@@ -121,7 +118,7 @@ function Register({ onRegisterSuccess }) {
             padding: '12px',
             border: 'none',
             borderRadius: '4px',
-            backgroundColor: '#6a5acd', // A nice purple
+            backgroundColor: '#6a5acd',
             color: 'white',
             fontSize: '1rem',
             fontWeight: 'bold',

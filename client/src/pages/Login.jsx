@@ -1,8 +1,6 @@
 import { useState } from 'react';
 import axios from 'axios';
 
-// 1. We accept onLoginSuccess to tell App.jsx we're in
-// 2. We accept onSwitchToRegister to toggle the view
 function Login({ onLoginSuccess, onSwitchToRegister }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -14,19 +12,15 @@ function Login({ onLoginSuccess, onSwitchToRegister }) {
 
     try {
       const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5050';
-      // We post to the /login endpoint
       const response = await axios.post(`${apiUrl}/api/users/login`, {
         email,
         password,
       });
 
-      // We'll get a token back from the server
       const { token } = response.data;
       
-      // Store the token (we'll use localStorage for simplicity)
       localStorage.setItem('authToken', token);
       
-      // Tell App.jsx that we logged in successfully
       if (onLoginSuccess) {
         onLoginSuccess();
       }

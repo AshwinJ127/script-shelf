@@ -4,7 +4,6 @@ import React from 'react';
 
 function Dashboard() {
   return (
-    // We'll assume 'dashboard-content', 'card', etc., are styled in your App.css
     <div className="dashboard-content"> 
       <div className="card">
         <h3>Welcome to Script Shelf</h3>

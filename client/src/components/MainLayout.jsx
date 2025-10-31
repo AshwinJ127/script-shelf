@@ -5,11 +5,9 @@ import Sidebar from './Sidebar';
 import Dashboard from '../pages/Dashboard';
 import Scripts from '../pages/Scripts';
 
-// You can create these placeholder files in src/pages/ if you want
 const Settings = () => <div className="card"><h1>Settings</h1><p>User settings will go here.</p></div>;
 const Help = () => <div className="card"><h1>Help & Support</h1><p>Help documentation will go here.</p></div>;
 
-// This helper component renders the correct page content
 function ActivePage({ activeItem }) {
   switch (activeItem) {
     case 'scripts':
@@ -24,11 +22,9 @@ function ActivePage({ activeItem }) {
   }
 }
 
-// This is the main shell of your logged-in application
 function MainLayout() {
   const [activeItem, setActiveItem] = useState('dashboard');
 
-  // Helper function to get the label for the header
   const getActivePageLabel = () => {
     const menuItems = [
       { id: 'dashboard', label: 'Dashboard' },

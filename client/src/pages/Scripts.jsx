@@ -4,7 +4,6 @@ import React from 'react';
 
 function Scripts() {
   return (
-    // We'll assume 'scripts-content' and 'card' are styled in App.css
     <div className="scripts-content">
       <div className="card">
         <h1>My Script Library</h1>
