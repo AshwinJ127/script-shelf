@@ -1,9 +1,7 @@
-// client/src/App.jsx
-
 import { useState, useEffect } from 'react';
 import './App.css';
 import AuthPage from './pages/Auth';
-import MainLayout from './components/MainLayout'; 
+import MainLayout from './components/MainLayout';
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(!!localStorage.getItem('authToken'));
@@ -15,8 +13,13 @@ function App() {
     }
   }, []);
 
+  const handleLogout = () => {
+    localStorage.removeItem('authToken');
+    setIsAuthenticated(false);
+  };
+
   if (isAuthenticated) {
-    return <MainLayout />;
+    return <MainLayout onLogout={handleLogout} />;
   }
 
   return (

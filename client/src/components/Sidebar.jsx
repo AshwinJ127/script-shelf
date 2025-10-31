@@ -1,15 +1,13 @@
-// client/src/components/Sidebar.jsx
-
 import React from 'react';
 
-function Sidebar({ activeItem, setActiveItem }) {
+function Sidebar({ activeItem, setActiveItem, onLogout }) {
   const menuItems = [
     { id: 'dashboard', label: 'Dashboard', icon: '📊' },
     { id: 'scripts', label: 'Scripts', icon: '📜' },
     { id: 'settings', label: 'Settings', icon: '⚙️' },
     { id: 'help', label: 'Help', icon: '❓' }
   ];
-
+  
   return (
     <div className="sidebar"> 
       <div className="sidebar-header">
@@ -31,6 +29,14 @@ function Sidebar({ activeItem, setActiveItem }) {
           ))}
         </ul>
       </nav>
+      
+      {/* Add the logout button at the bottom */}
+      <div className="sidebar-footer">
+        <a href="#" onClick={onLogout} className="nav-item">
+          <span className="nav-icon">🚪</span>
+          <span className="nav-label">Logout</span>
+        </a>
+      </div>
     </div>
   );
 }

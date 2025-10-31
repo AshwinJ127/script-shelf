@@ -1,5 +1,3 @@
-// client/src/components/MainLayout.jsx
-
 import { useState } from 'react';
 import Sidebar from './Sidebar';
 import Dashboard from '../pages/Dashboard';
@@ -22,7 +20,7 @@ function ActivePage({ activeItem }) {
   }
 }
 
-function MainLayout() {
+function MainLayout({ onLogout }) {
   const [activeItem, setActiveItem] = useState('dashboard');
 
   const getActivePageLabel = () => {
@@ -40,13 +38,17 @@ function MainLayout() {
       className="app-layout"
       style={{ display: 'flex', height: '100vh', width: '100vw' }}
     >
-      <Sidebar activeItem={activeItem} setActiveItem={setActiveItem} />
+      {/* Pass the onLogout prop down to the Sidebar */}
+      <Sidebar 
+        activeItem={activeItem} 
+        setActiveItem={setActiveItem} 
+        onLogout={onLogout} 
+      />
 
       <div className="main-content" style={{ flex: 1, overflowY: 'auto' }}>
         <header className="main-header">
           <h1>{getActivePageLabel()}</h1>
         </header>
-        {/* The content here is now dynamic based on the activeItem state */}
         <ActivePage activeItem={activeItem} />
       </div>
     </div>
