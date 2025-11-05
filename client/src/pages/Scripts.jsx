@@ -16,8 +16,6 @@ function Scripts() {
   const [code, setCode] = useState('');
   const [language, setLanguage] = useState('javascript');
   const [editingSnippet, setEditingSnippet] = useState(null);
-  
-  // 1. ADD NEW STATE FOR THE SEARCH TERM
   const [searchTerm, setSearchTerm] = useState('');
 
   useEffect(() => {
@@ -75,7 +73,6 @@ function Scripts() {
     }
   };
 
-  // 2. CREATE A NEW FILTERED LIST BASED ON THE SEARCH TERM
   const filteredSnippets = snippets.filter(snippet => 
     snippet.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
     snippet.code.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -83,11 +80,11 @@ function Scripts() {
   );
 
   return (
-    <div className="scripts-content" style={{ display: 'flex', gap: '2rem', padding: '1rem' }}>
+    <div className="scripts-content" style={{ display: 'flex', gap: '2rem', padding: '1rem', alignItems: 'flex-start' }}>
+      
       <div className="card" style={{ flex: 1, height: 'fit-content' }}>
         <h3>{editingSnippet ? 'Edit Snippet' : 'Create New Snippet'}</h3>
         <form onSubmit={handleSubmit}>
-          {/* ... (your form code remains the same) ... */}
           <div>
             <label>Title</label>
             <input 
@@ -137,16 +134,14 @@ function Scripts() {
       <div className="card" style={{ flex: 2 }}>
         <h3>My Snippet Library</h3>
 
-        {/* 3. ADD THE SEARCH INPUT FIELD */}
         <input 
           type="text"
           placeholder="Search by title, language, or code..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          style={{ width: '1S00%', padding: '8px', boxSizing: 'border-box', marginBottom: '1.5rem', borderRadius: '8px', border: '1px solid #e2e8f0' }}
+          style={{ width: '100%', padding: '8px', boxSizing: 'border-box', marginBottom: '1.5rem', borderRadius: '8px', border: '1px solid #e2e8f0' }}
         />
 
-        {/* 4. UPDATE THE LIST LOGIC TO USE THE FILTERED LIST */}
         {snippets.length === 0 ? (
           <p>You haven't saved any snippets yet.</p>
         ) : filteredSnippets.length === 0 ? (
