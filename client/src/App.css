@@ -201,6 +201,7 @@ textarea {
   font-size: 0.9rem;
   font-family: inherit;
   background-color: #fdfdfd;
+  color: var(--text-primary);
 }
 
 input[type="text"]:focus,
