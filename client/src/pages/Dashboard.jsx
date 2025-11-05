@@ -38,10 +38,6 @@ function Dashboard() {
 
   return (
     <div className="dashboard-content"> 
-      <div className="card">
-        <h3>Welcome to Script Shelf</h3>
-        <p>This is your personal script management dashboard. Here's a quick overview of your library.</p>
-      </div>
       
       <div className="card">
         <div className="stat-item" style={{ textAlign: 'center' }}>
