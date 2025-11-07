@@ -85,7 +85,7 @@ function Register({ onRegisterSuccess }) {
         </label>
         <input
           type="email"
-          id="email"
+          id="register-email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           required
@@ -106,7 +106,7 @@ function Register({ onRegisterSuccess }) {
         <div style={{ position: 'relative', width: '100%' }}>
           <input
             type={showPassword ? 'text' : 'password'}
-            id="password"
+            id="register-password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required

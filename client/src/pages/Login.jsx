@@ -82,7 +82,7 @@ function Login({ onLoginSuccess, onSwitchToRegister }) {
         </label>
         <input
           type="email"
-          id="email"
+          id="login-email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           required
@@ -103,7 +103,7 @@ function Login({ onLoginSuccess, onSwitchToRegister }) {
         <div style={{ position: 'relative', width: '100%' }}>
           <input
             type={showPassword ? 'text' : 'password'}
-            id="password"
+            id="login-password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
