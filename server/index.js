@@ -62,9 +62,7 @@ app.post('/api/users/register', async (req, res) => {
 
 // --- NEW User Login Route ---
 app.post('/api/users/login', async (req, res) => {
-  console.log('--- Login Attempt Received ---');
   const { email, password } = req.body;
-  console.log(`Attempting login for email: ${email}`);
 
   if (!email || !password) {
     console.log('Login failed: Email or password missing');
@@ -72,8 +70,6 @@ app.post('/api/users/login', async (req, res) => {
   }
 
   try {
-    // 1. Find the user in the database
-    console.log('Searching for user in database...');
     const user = await pool.query('SELECT * FROM users WHERE email = $1', [
       email,
     ]);
@@ -84,10 +80,7 @@ app.post('/api/users/login', async (req, res) => {
     }
 
     const foundUser = user.rows[0];
-    console.log(`User found: ${foundUser.email} (ID: ${foundUser.id})`);
 
-    // 2. Compare the provided password with the stored hash
-    console.log('Comparing passwords...');
     const isMatch = await bcrypt.compare(password, foundUser.password_hash);
 
     if (!isMatch) {
@@ -95,9 +88,7 @@ app.post('/api/users/login', async (req, res) => {
       return res.status(400).json({ msg: 'Invalid credentials' });
     }
 
-    console.log('Passwords match! Creating token...');
 
-    // 3. Create a JSON Web Token (JWT)
     const payload = {
       user: {
         id: foundUser.id,
