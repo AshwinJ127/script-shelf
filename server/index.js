@@ -62,30 +62,40 @@ app.post('/api/users/register', async (req, res) => {
 
 // --- NEW User Login Route ---
 app.post('/api/users/login', async (req, res) => {
+  console.log('--- Login Attempt Received ---');
   const { email, password } = req.body;
+  console.log(`Attempting login for email: ${email}`);
 
   if (!email || !password) {
+    console.log('Login failed: Email or password missing');
     return res.status(400).json({ msg: 'Please enter all fields' });
   }
 
   try {
     // 1. Find the user in the database
+    console.log('Searching for user in database...');
     const user = await pool.query('SELECT * FROM users WHERE email = $1', [
       email,
     ]);
 
     if (user.rows.length === 0) {
+      console.log('Login failed: User not found.');
       return res.status(400).json({ msg: 'Invalid credentials' });
     }
 
     const foundUser = user.rows[0];
+    console.log(`User found: ${foundUser.email} (ID: ${foundUser.id})`);
 
     // 2. Compare the provided password with the stored hash
+    console.log('Comparing passwords...');
     const isMatch = await bcrypt.compare(password, foundUser.password_hash);
 
     if (!isMatch) {
+      console.log('Login failed: Passwords do not match.');
       return res.status(400).json({ msg: 'Invalid credentials' });
     }
+
+    console.log('Passwords match! Creating token...');
 
     // 3. Create a JSON Web Token (JWT)
     const payload = {
@@ -99,11 +109,17 @@ app.post('/api/users/login', async (req, res) => {
       process.env.JWT_SECRET,
       { expiresIn: '365d' }, // Token expires in 1 year
       (err, token) => {
-        if (err) throw err;
+        if (err) {
+          console.log('Token signing error:', err);
+          throw err;
+        }
+        console.log('Token created. Sending to client.');
+        console.log('--- Login Attempt Successful ---');
         res.json({ token }); // Send the token back to the client
       }
     );
   } catch (err) {
+    console.log('--- LOGIN FAILED: SERVER ERROR ---');
     console.error(err.message);
     res.status(500).send('Server error');
   }
