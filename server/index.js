@@ -15,7 +15,6 @@ const pool = new Pool({
 });
 
 // === Middleware ===
-app.options('*', cors());
 app.use(cors());
 app.use(express.json()); 
 
