@@ -35,6 +35,17 @@ function Dashboard() {
   }, {});
 
   const sortedLanguages = Object.entries(languageCounts).sort(([, countA], [, countB]) => countB - countA);
+  
+  // Recently saved snippets (latest 5)
+  const recentSnippets = [...snippets]
+    .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
+    .slice(0, 5);
+
+  const formatDate = (dateString) => {
+    if (!dateString) return '';
+    const date = new Date(dateString);
+    return date.toLocaleDateString();
+  };
 
   return (
     <div className="dashboard-content"> 
@@ -46,6 +57,48 @@ function Dashboard() {
           </span>
           <span className="stat-label"> Total Snippets</span>
         </div>
+      </div>
+
+      {/* Quick Actions */}
+      <div className="card">
+        <h3>Quick Actions</h3>
+        <div className="action-buttons" style={{ display: 'flex', gap: '1rem' }}>
+          <button onClick={() => { window.location.hash = '#scripts-new'; }}>
+            Create New Snippet
+          </button>
+          <button onClick={() => { window.location.hash = '#scripts'; }}>
+            Edit Existing Snippet
+          </button>
+        </div>
+      </div>
+
+      {/* Recently Saved Snippets */}
+      <div className="card">
+        <h3>Recently Saved</h3>
+        {isLoading ? (
+          <p>Loading...</p>
+        ) : recentSnippets.length === 0 ? (
+          <p>No recent snippets.</p>
+        ) : (
+          <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+            {recentSnippets.map((s) => (
+              <li key={s.id} style={{ padding: '0.75rem 0', borderBottom: '1px solid #e2e8f0' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <div>
+                    <strong>{s.title}</strong>
+                    <span style={{ marginLeft: '0.5rem', color: '#718096', textTransform: 'capitalize' }}>({s.language || 'text'})</span>
+                  </div>
+                  <span style={{ color: '#718096', fontSize: '0.875rem' }}>{formatDate(s.created_at)}</span>
+                </div>
+                {s.code ? (
+                  <div style={{ marginTop: '0.5rem', color: '#4a5568', fontFamily: 'monospace', fontSize: '0.85rem', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                    {s.code.slice(0, 120)}{s.code.length > 120 ? '…' : ''}
+                  </div>
+                ) : null}
+              </li>
+            ))}
+          </ul>
+        )}
       </div>
 
       <div className="card">
