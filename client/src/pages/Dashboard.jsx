@@ -8,7 +8,7 @@ const getAuthHeaders = () => {
 
 const apiUrl = import.meta.env.VITE_API_URL;
 
-function Dashboard() {
+function Dashboard({ navigateTo }) {
   const [snippets, setSnippets] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -63,10 +63,10 @@ function Dashboard() {
       <div className="card">
         <h3>Quick Actions</h3>
         <div className="action-buttons" style={{ display: 'flex', gap: '1rem' }}>
-          <button onClick={() => { window.location.hash = '#scripts-new'; }}>
+          <button onClick={() => navigateTo('scripts')}>
             Create New Snippet
           </button>
-          <button onClick={() => { window.location.hash = '#scripts'; }}>
+          <button onClick={() => navigateTo('scripts')}>
             Edit Existing Snippet
           </button>
         </div>

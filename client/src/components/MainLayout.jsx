@@ -6,7 +6,7 @@ import Scripts from '../pages/Scripts';
 const Settings = () => <div className="card"><h1>Settings</h1><p>User settings will go here.</p></div>;
 const Help = () => <div className="card"><h1>Help & Support</h1><p>Help documentation will go here.</p></div>;
 
-function ActivePage({ activeItem }) {
+function ActivePage({ activeItem, setActiveItem }) {
   switch (activeItem) {
     case 'scripts':
       return <Scripts />;
@@ -16,7 +16,7 @@ function ActivePage({ activeItem }) {
       return <Help />;
     case 'dashboard':
     default:
-      return <Dashboard />;
+      return <Dashboard navigateTo={setActiveItem} />;
   }
 }
 
@@ -49,7 +49,7 @@ function MainLayout({ onLogout }) {
         <header className="main-header">
           <h1>{getActivePageLabel()}</h1>
         </header>
-        <ActivePage activeItem={activeItem} />
+        <ActivePage activeItem={activeItem} setActiveItem={setActiveItem} />
       </div>
     </div>
   );
