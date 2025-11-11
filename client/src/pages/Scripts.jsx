@@ -17,6 +17,7 @@ function Scripts() {
   const [language, setLanguage] = useState('javascript');
   const [editingSnippet, setEditingSnippet] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
+  const [copiedId, setCopiedId] = useState(null);
 
   useEffect(() => {
     fetchSnippets();
@@ -70,6 +71,36 @@ function Scripts() {
       } catch (err) {
         console.error('Error deleting snippet:', err);
       }
+    }
+  };
+
+  const handleCopy = async (snippet) => {
+    try {
+      await navigator.clipboard.writeText(snippet.code);
+      setCopiedId(snippet.id);
+      // Reset the "Copied!" message after 2 seconds
+      setTimeout(() => {
+        setCopiedId(null);
+      }, 2000);
+    } catch (err) {
+      // Fallback for browsers that don't support Clipboard API
+      const textArea = document.createElement('textarea');
+      textArea.value = snippet.code;
+      textArea.style.position = 'fixed';
+      textArea.style.left = '-999999px';
+      document.body.appendChild(textArea);
+      textArea.select();
+      try {
+        document.execCommand('copy');
+        setCopiedId(snippet.id);
+        setTimeout(() => {
+          setCopiedId(null);
+        }, 2000);
+      } catch (fallbackErr) {
+        console.error('Failed to copy:', fallbackErr);
+        alert('Failed to copy to clipboard. Please select and copy manually.');
+      }
+      document.body.removeChild(textArea);
     }
   };
 
@@ -152,8 +183,30 @@ function Scripts() {
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <h4 style={{ margin: 0 }}>{snippet.title} ({snippet.language})</h4>
                 <div>
-                  <button onClick={() => startEdit(snippet)} style={{ padding: '5px 10px' }}>Edit</button>
-                  <button onClick={() => handleDelete(snippet.id)} style={{ marginLeft: '0.5rem', padding: '5px 10px' }}>
+                  <button 
+                    onClick={() => handleCopy(snippet)} 
+                    style={{ 
+                      padding: '5px 10px',
+                      backgroundColor: copiedId === snippet.id ? '#4caf50' : '#6a5acd',
+                      color: 'white',
+                      border: 'none',
+                      borderRadius: '4px',
+                      cursor: 'pointer',
+                      transition: 'background-color 0.2s'
+                    }}
+                  >
+                    {copiedId === snippet.id ? 'Copied!' : 'Copy'}
+                  </button>
+                  <button 
+                    onClick={() => startEdit(snippet)} 
+                    style={{ marginLeft: '0.5rem', padding: '5px 10px' }}
+                  >
+                    Edit
+                  </button>
+                  <button 
+                    onClick={() => handleDelete(snippet.id)} 
+                    style={{ marginLeft: '0.5rem', padding: '5px 10px' }}
+                  >
                     Delete
                   </button>
                 </div>
