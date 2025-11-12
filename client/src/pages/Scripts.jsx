@@ -104,6 +104,16 @@ function Scripts() {
     }
   };
 
+  const formatDate = (dateString) => {
+    if (!dateString) return '';
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', { 
+      year: 'numeric', 
+      month: 'short', 
+      day: 'numeric' 
+    });
+  };
+
   const filteredSnippets = snippets.filter(snippet => 
     snippet.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
     snippet.code.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -180,8 +190,19 @@ function Scripts() {
         ) : (
           filteredSnippets.map(snippet => (
             <div key={snippet.id} className="snippet-item" style={{ border: '1px solid #eee', borderRadius: '8px', padding: '1rem', marginBottom: '1rem' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <h4 style={{ margin: 0 }}>{snippet.title} ({snippet.language})</h4>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
+                <div style={{ flex: 1 }}>
+                  <h4 style={{ margin: 0, marginBottom: '0.25rem' }}>{snippet.title}</h4>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', fontSize: '0.875rem', color: '#718096' }}>
+                    <span style={{ textTransform: 'capitalize' }}>{snippet.language || 'text'}</span>
+                    {snippet.created_at && (
+                      <>
+                        <span>•</span>
+                        <span>Created {formatDate(snippet.created_at)}</span>
+                      </>
+                    )}
+                  </div>
+                </div>
                 <div>
                   <button 
                     onClick={() => handleCopy(snippet)} 
@@ -211,7 +232,7 @@ function Scripts() {
                   </button>
                 </div>
               </div>
-              <pre style={{ backgroundColor: '#f4f4f4', padding: '0.5rem', overflowX: 'auto', borderRadius: '4px', marginTop: '1rem' }}>
+              <pre style={{ backgroundColor: '#f4f4f4', padding: '0.5rem', overflowX: 'auto', borderRadius: '4px', marginTop: '0.5rem' }}>
                 <code>{snippet.code}</code>
               </pre>
             </div>
