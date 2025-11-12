@@ -18,17 +18,64 @@ function Scripts() {
   const [editingSnippet, setEditingSnippet] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [copiedId, setCopiedId] = useState(null);
+  const [error, setError] = useState('');
+  const [successMessage, setSuccessMessage] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
+    // Log API URL for debugging
+    console.log('API URL:', apiUrl);
+    console.log('Environment VITE_API_URL:', import.meta.env.VITE_API_URL);
     fetchSnippets();
   }, []);
 
   const fetchSnippets = async () => {
     try {
-      const res = await axios.get(`${apiUrl}/api/snippets`, getAuthHeaders());
-      setSnippets(res.data);
+      setIsLoading(true);
+      setError('');
+      
+      // Log for debugging
+      console.log('Fetching snippets from:', `${apiUrl}/api/snippets`);
+      console.log('Auth token present:', !!localStorage.getItem('authToken'));
+      
+      // Add timeout to prevent hanging
+      const config = {
+        ...getAuthHeaders(),
+        timeout: 10000 // 10 second timeout
+      };
+      
+      const res = await axios.get(`${apiUrl}/api/snippets`, config);
+      setSnippets(res.data || []);
+      console.log('Snippets loaded:', res.data?.length || 0);
     } catch (err) {
       console.error('Error fetching snippets:', err);
+      console.error('Error details:', {
+        message: err.message,
+        response: err.response?.data,
+        status: err.response?.status,
+        request: err.request,
+        code: err.code
+      });
+      
+      if (err.code === 'ECONNABORTED' || err.message.includes('timeout')) {
+        setError(`Request timed out. Check if server is running at ${apiUrl}`);
+      } else if (err.response) {
+        if (err.response.status === 401) {
+          setError('Authentication failed. Please log out and log back in.');
+        } else if (err.response.status === 500) {
+          setError('Server error. Please check if the server is running.');
+        } else {
+          setError(`Error loading snippets: ${err.response.data?.msg || err.message}`);
+        }
+      } else if (err.request) {
+        setError(`Cannot connect to server. Check if the server is running at ${apiUrl}. Make sure your local server is running on port 5050.`);
+      } else {
+        setError(`Error: ${err.message || 'Unknown error occurred'}`);
+      }
+      // Set empty array on error so UI doesn't show "no snippets" when it's actually a connection issue
+      setSnippets([]);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -37,22 +84,70 @@ function Scripts() {
     setCode('');
     setLanguage('javascript');
     setEditingSnippet(null);
+    setError('');
+    setSuccessMessage('');
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setError('');
+    setSuccessMessage('');
+    setIsLoading(true);
+    
     const snippetData = { title, code, language };
+    
+    // Log for debugging
+    console.log('Saving snippet to:', `${apiUrl}/api/snippets`);
+    console.log('Auth token present:', !!localStorage.getItem('authToken'));
 
     try {
+      // Add timeout to prevent hanging
+      const config = {
+        ...getAuthHeaders(),
+        timeout: 10000 // 10 second timeout
+      };
+      
       if (editingSnippet) {
-        await axios.put(`${apiUrl}/api/snippets/${editingSnippet.id}`, snippetData, getAuthHeaders());
+        await axios.put(`${apiUrl}/api/snippets/${editingSnippet.id}`, snippetData, config);
+        setSuccessMessage('Snippet updated successfully!');
       } else {
-        await axios.post(`${apiUrl}/api/snippets`, snippetData, getAuthHeaders());
+        await axios.post(`${apiUrl}/api/snippets`, snippetData, config);
+        setSuccessMessage('Snippet saved successfully!');
       }
-      fetchSnippets();
+      
+      // Refresh the list
+      await fetchSnippets();
       clearForm();
+      // Clear success message after 3 seconds
+      setTimeout(() => setSuccessMessage(''), 3000);
     } catch (err) {
       console.error('Error saving snippet:', err);
+      console.error('Error details:', {
+        message: err.message,
+        response: err.response?.data,
+        status: err.response?.status,
+        request: err.request
+      });
+      
+      if (err.code === 'ECONNABORTED' || err.message.includes('timeout')) {
+        setError(`Request timed out. Check if server is running at ${apiUrl}`);
+      } else if (err.response) {
+        if (err.response.status === 401) {
+          setError('Authentication failed. Please log out and log back in.');
+        } else if (err.response.status === 400) {
+          setError(err.response.data?.msg || 'Invalid data. Please check your input.');
+        } else if (err.response.status === 500) {
+          setError('Server error. Please check if the server is running.');
+        } else {
+          setError(`Error saving snippet: ${err.response.data?.msg || err.message}`);
+        }
+      } else if (err.request) {
+        setError(`Cannot connect to server. Check if the server is running at ${apiUrl}. Make sure your local server is running on port 5050.`);
+      } else {
+        setError(`Error: ${err.message || 'Unknown error occurred'}`);
+      }
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -125,6 +220,30 @@ function Scripts() {
       
       <div className="card" style={{ flex: 1, height: 'fit-content' }}>
         <h3>{editingSnippet ? 'Edit Snippet' : 'Create New Snippet'}</h3>
+        {error && (
+          <div style={{ 
+            padding: '10px', 
+            marginBottom: '1rem', 
+            backgroundColor: '#fee', 
+            color: '#c33', 
+            borderRadius: '4px',
+            fontSize: '0.9rem'
+          }}>
+            {error}
+          </div>
+        )}
+        {successMessage && (
+          <div style={{ 
+            padding: '10px', 
+            marginBottom: '1rem', 
+            backgroundColor: '#efe', 
+            color: '#3c3', 
+            borderRadius: '4px',
+            fontSize: '0.9rem'
+          }}>
+            {successMessage}
+          </div>
+        )}
         <form onSubmit={handleSubmit}>
           <div>
             <label>Title</label>
@@ -161,8 +280,8 @@ function Scripts() {
               style={{ width: '100%', fontFamily: 'monospace', padding: '8px', boxSizing: 'border-box' }}
             />
           </div>
-          <button type="submit" style={{ padding: '10px 15px' }}>
-            {editingSnippet ? 'Update Snippet' : 'Save Snippet'}
+          <button type="submit" style={{ padding: '10px 15px' }} disabled={isLoading}>
+            {isLoading ? 'Saving...' : editingSnippet ? 'Update Snippet' : 'Save Snippet'}
           </button>
           {editingSnippet && (
             <button type="button" onClick={clearForm} style={{ marginLeft: '1rem', padding: '10px 15px' }}>
@@ -183,7 +302,9 @@ function Scripts() {
           style={{ width: '100%', padding: '8px', boxSizing: 'border-box', marginBottom: '1.5rem', borderRadius: '8px', border: '1px solid #e2e8f0' }}
         />
 
-        {snippets.length === 0 ? (
+        {isLoading ? (
+          <p>Loading snippets...</p>
+        ) : snippets.length === 0 ? (
           <p>You haven't saved any snippets yet.</p>
         ) : filteredSnippets.length === 0 ? (
           <p>No snippets found matching "{searchTerm}".</p>
