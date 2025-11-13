@@ -22,7 +22,6 @@ function Sidebar({ activeItem, setActiveItem, onLogout }) {
                 onClick={() => setActiveItem(item.id)}
                 className={`nav-item ${activeItem === item.id ? 'active' : ''}`}
               >
-                <span className="nav-icon">{item.icon}</span>
                 <span className="nav-label">{item.label}</span>
               </a>
             </li>
@@ -30,10 +29,8 @@ function Sidebar({ activeItem, setActiveItem, onLogout }) {
         </ul>
       </nav>
       
-      {/* Add the logout button at the bottom */}
       <div className="sidebar-footer">
         <a href="#" onClick={onLogout} className="nav-item">
-          <span className="nav-icon">🚪</span>
           <span className="nav-label">Logout</span>
         </a>
       </div>
