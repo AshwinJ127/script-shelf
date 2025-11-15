@@ -6,23 +6,24 @@ import Scripts from '../pages/Scripts';
 const Settings = () => <div className="card"><h1>Settings</h1><p>User settings will go here.</p></div>;
 const Help = () => <div className="card"><h1>Help & Support</h1><p>Help documentation will go here.</p></div>;
 
-function ActivePage({ activeItem, setActiveItem, languageFilter, navigateToScriptsWithLanguage }) {
+function ActivePage({ activeItem, setActiveItem, languageFilter, navigateToScriptsWithLanguage, selectedSnippetId, navigateToSnippet }) {
   switch (activeItem) {
     case 'scripts':
-      return <Scripts languageFilter={languageFilter} />;
+      return <Scripts languageFilter={languageFilter} selectedSnippetId={selectedSnippetId} />;
     case 'settings':
       return <Settings />;
     case 'help':
       return <Help />;
     case 'dashboard':
     default:
-      return <Dashboard navigateTo={setActiveItem} navigateToScriptsWithLanguage={navigateToScriptsWithLanguage} />;
+      return <Dashboard navigateTo={setActiveItem} navigateToScriptsWithLanguage={navigateToScriptsWithLanguage} navigateToSnippet={navigateToSnippet} />;
   }
 }
 
 function MainLayout({ onLogout }) {
   const [activeItem, setActiveItem] = useState('dashboard');
   const [languageFilter, setLanguageFilter] = useState(null);
+  const [selectedSnippetId, setSelectedSnippetId] = useState(null);
 
   const getActivePageLabel = () => {
     const menuItems = [
@@ -36,14 +37,22 @@ function MainLayout({ onLogout }) {
 
   const handleNavigateToScriptsWithLanguage = (language) => {
     setLanguageFilter(language);
+    setSelectedSnippetId(null);
+    setActiveItem('scripts');
+  };
+
+  const handleNavigateToSnippet = (snippetId) => {
+    setSelectedSnippetId(snippetId);
+    setLanguageFilter(null);
     setActiveItem('scripts');
   };
 
   const handleSetActiveItem = (item) => {
     setActiveItem(item);
-    // Clear language filter when navigating away from scripts
+    // Clear filters when navigating away from scripts
     if (item !== 'scripts') {
       setLanguageFilter(null);
+      setSelectedSnippetId(null);
     }
   };
 
@@ -68,6 +77,8 @@ function MainLayout({ onLogout }) {
           setActiveItem={handleSetActiveItem}
           languageFilter={languageFilter}
           navigateToScriptsWithLanguage={handleNavigateToScriptsWithLanguage}
+          selectedSnippetId={selectedSnippetId}
+          navigateToSnippet={handleNavigateToSnippet}
         />
       </div>
     </div>

@@ -10,7 +10,7 @@ const getAuthHeaders = () => {
 
 const apiUrl = import.meta.env.VITE_API_URL || "https://script-shelf.onrender.com";
 
-function Scripts({ languageFilter }) {
+function Scripts({ languageFilter, selectedSnippetId }) {
   const [snippets, setSnippets] = useState([]);
   const [title, setTitle] = useState('');
   const [code, setCode] = useState('');
@@ -21,6 +21,7 @@ function Scripts({ languageFilter }) {
   const [error, setError] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [highlightedSnippetId, setHighlightedSnippetId] = useState(null);
 
 
   useEffect(() => {
@@ -29,6 +30,24 @@ function Scripts({ languageFilter }) {
     console.log('Environment VITE_API_URL:', import.meta.env.VITE_API_URL);
     fetchSnippets();
   }, []);
+
+  // Scroll to and highlight the selected snippet when it loads
+  useEffect(() => {
+    if (selectedSnippetId && snippets.length > 0) {
+      // Wait a bit for the DOM to render
+      setTimeout(() => {
+        const snippetElement = document.getElementById(`snippet-${selectedSnippetId}`);
+        if (snippetElement) {
+          snippetElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          setHighlightedSnippetId(selectedSnippetId);
+          // Remove highlight after 3 seconds
+          setTimeout(() => {
+            setHighlightedSnippetId(null);
+          }, 3000);
+        }
+      }, 100);
+    }
+  }, [selectedSnippetId, snippets]);
 
   const fetchSnippets = async () => {
     try {
@@ -211,6 +230,11 @@ function Scripts({ languageFilter }) {
   };
 
   const filteredSnippets = snippets.filter(snippet => {
+    // Always show the selected snippet, even if it would be filtered out
+    if (selectedSnippetId && snippet.id === selectedSnippetId) {
+      return true;
+    }
+    
     // First, apply language filter if provided (exact match)
     if (languageFilter) {
       const matchesLanguage = snippet.language?.toLowerCase() === languageFilter.toLowerCase();
@@ -325,7 +349,19 @@ function Scripts({ languageFilter }) {
           <p>No snippets found matching "{searchTerm}".</p>
         ) : (
           filteredSnippets.map(snippet => (
-            <div key={snippet.id} className="snippet-item" style={{ border: '1px solid #eee', borderRadius: '8px', padding: '1rem', marginBottom: '1rem' }}>
+            <div 
+              key={snippet.id} 
+              id={`snippet-${snippet.id}`}
+              className="snippet-item" 
+              style={{ 
+                border: highlightedSnippetId === snippet.id ? '2px solid #6a5acd' : '1px solid #eee', 
+                borderRadius: '8px', 
+                padding: '1rem', 
+                marginBottom: '1rem',
+                backgroundColor: highlightedSnippetId === snippet.id ? '#f0f4ff' : 'transparent',
+                transition: 'all 0.3s ease'
+              }}
+            >
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
                 <div style={{ flex: 1 }}>
                   <h4 style={{ margin: 0, marginBottom: '0.25rem' }}>{snippet.title}</h4>

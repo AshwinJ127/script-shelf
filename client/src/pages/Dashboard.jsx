@@ -8,7 +8,7 @@ const getAuthHeaders = () => {
 
 const apiUrl = import.meta.env.VITE_API_URL;
 
-function Dashboard({ navigateTo, navigateToScriptsWithLanguage }) {
+function Dashboard({ navigateTo, navigateToScriptsWithLanguage, navigateToSnippet }) {
   const [snippets, setSnippets] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -82,7 +82,20 @@ function Dashboard({ navigateTo, navigateToScriptsWithLanguage }) {
         ) : (
           <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
             {recentSnippets.map((s) => (
-              <li key={s.id} style={{ padding: '0.75rem 0', borderBottom: '1px solid #e2e8f0' }}>
+              <li 
+                key={s.id} 
+                onClick={() => navigateToSnippet && navigateToSnippet(s.id)}
+                style={{ 
+                  padding: '0.75rem', 
+                  borderBottom: '1px solid #e2e8f0',
+                  cursor: 'pointer',
+                  transition: 'background-color 0.2s',
+                  borderRadius: '4px',
+                  marginBottom: '0.25rem'
+                }}
+                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f7fafc'}
+                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+              >
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <div>
                     <strong>{s.title}</strong>
