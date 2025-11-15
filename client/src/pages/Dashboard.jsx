@@ -8,7 +8,7 @@ const getAuthHeaders = () => {
 
 const apiUrl = import.meta.env.VITE_API_URL;
 
-function Dashboard({ navigateTo }) {
+function Dashboard({ navigateTo, navigateToScriptsWithLanguage }) {
   const [snippets, setSnippets] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -112,13 +112,18 @@ function Dashboard({ navigateTo }) {
             {sortedLanguages.map(([language, count], index) => (
               <li 
                 key={language} 
+                onClick={() => navigateToScriptsWithLanguage && navigateToScriptsWithLanguage(language)}
                 style={{ 
                   display: 'flex', 
                   justifyContent: 'space-between', 
                   alignItems: 'center',
                   padding: '1rem 0.25rem',
-                  borderBottom: index === sortedLanguages.length - 1 ? 'none' : '1px solid #e2e8f0' 
+                  borderBottom: index === sortedLanguages.length - 1 ? 'none' : '1px solid #e2e8f0',
+                  cursor: 'pointer',
+                  transition: 'background-color 0.2s'
                 }}
+                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f7fafc'}
+                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
               >
                 <span 
                   className="stat-label" 

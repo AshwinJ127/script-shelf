@@ -10,7 +10,7 @@ const getAuthHeaders = () => {
 
 const apiUrl = import.meta.env.VITE_API_URL || "https://script-shelf.onrender.com";
 
-function Scripts() {
+function Scripts({ languageFilter }) {
   const [snippets, setSnippets] = useState([]);
   const [title, setTitle] = useState('');
   const [code, setCode] = useState('');
@@ -21,6 +21,7 @@ function Scripts() {
   const [error, setError] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+
 
   useEffect(() => {
     // Log API URL for debugging
@@ -209,11 +210,25 @@ function Scripts() {
     });
   };
 
-  const filteredSnippets = snippets.filter(snippet => 
-    snippet.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    snippet.code.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    snippet.language.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredSnippets = snippets.filter(snippet => {
+    // First, apply language filter if provided (exact match)
+    if (languageFilter) {
+      const matchesLanguage = snippet.language?.toLowerCase() === languageFilter.toLowerCase();
+      if (!matchesLanguage) {
+        return false;
+      }
+    }
+    
+    // Then apply search term filter if provided
+    if (searchTerm) {
+      return snippet.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+             snippet.code.toLowerCase().includes(searchTerm.toLowerCase()) ||
+             snippet.language.toLowerCase().includes(searchTerm.toLowerCase());
+    }
+    
+    // If no filters, show all
+    return true;
+  });
 
   return (
     <div className="scripts-content" style={{ display: 'flex', gap: '2rem', padding: '1rem', alignItems: 'flex-start' }}>

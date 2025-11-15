@@ -6,22 +6,23 @@ import Scripts from '../pages/Scripts';
 const Settings = () => <div className="card"><h1>Settings</h1><p>User settings will go here.</p></div>;
 const Help = () => <div className="card"><h1>Help & Support</h1><p>Help documentation will go here.</p></div>;
 
-function ActivePage({ activeItem, setActiveItem }) {
+function ActivePage({ activeItem, setActiveItem, languageFilter, navigateToScriptsWithLanguage }) {
   switch (activeItem) {
     case 'scripts':
-      return <Scripts />;
+      return <Scripts languageFilter={languageFilter} />;
     case 'settings':
       return <Settings />;
     case 'help':
       return <Help />;
     case 'dashboard':
     default:
-      return <Dashboard navigateTo={setActiveItem} />;
+      return <Dashboard navigateTo={setActiveItem} navigateToScriptsWithLanguage={navigateToScriptsWithLanguage} />;
   }
 }
 
 function MainLayout({ onLogout }) {
   const [activeItem, setActiveItem] = useState('dashboard');
+  const [languageFilter, setLanguageFilter] = useState(null);
 
   const getActivePageLabel = () => {
     const menuItems = [
@@ -33,6 +34,19 @@ function MainLayout({ onLogout }) {
     return menuItems.find(item => item.id === activeItem)?.label || 'Dashboard';
   };
 
+  const handleNavigateToScriptsWithLanguage = (language) => {
+    setLanguageFilter(language);
+    setActiveItem('scripts');
+  };
+
+  const handleSetActiveItem = (item) => {
+    setActiveItem(item);
+    // Clear language filter when navigating away from scripts
+    if (item !== 'scripts') {
+      setLanguageFilter(null);
+    }
+  };
+
   return (
     <div
       className="app-layout"
@@ -41,7 +55,7 @@ function MainLayout({ onLogout }) {
       {/* Pass the onLogout prop down to the Sidebar */}
       <Sidebar 
         activeItem={activeItem} 
-        setActiveItem={setActiveItem} 
+        setActiveItem={handleSetActiveItem} 
         onLogout={onLogout} 
       />
 
@@ -49,7 +63,12 @@ function MainLayout({ onLogout }) {
         <header className="main-header">
           <h1>{getActivePageLabel()}</h1>
         </header>
-        <ActivePage activeItem={activeItem} setActiveItem={setActiveItem} />
+        <ActivePage 
+          activeItem={activeItem} 
+          setActiveItem={handleSetActiveItem}
+          languageFilter={languageFilter}
+          navigateToScriptsWithLanguage={handleNavigateToScriptsWithLanguage}
+        />
       </div>
     </div>
   );

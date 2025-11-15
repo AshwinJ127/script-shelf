@@ -178,5 +178,4 @@ function Register({ onRegisterSuccess, onSwitchToLogin }) {
     </div>
   );
 }
-
 export default Register;
