@@ -15,6 +15,7 @@ function Scripts() {
   const [title, setTitle] = useState('');
   const [code, setCode] = useState('');
   const [language, setLanguage] = useState('javascript');
+  const [isPublic, setIsPublic] = useState(false);
   const [editingSnippet, setEditingSnippet] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [copiedId, setCopiedId] = useState(null);
@@ -83,6 +84,7 @@ function Scripts() {
     setTitle('');
     setCode('');
     setLanguage('javascript');
+    setIsPublic(false);
     setEditingSnippet(null);
     setError('');
     setSuccessMessage('');
@@ -94,7 +96,7 @@ function Scripts() {
     setSuccessMessage('');
     setIsLoading(true);
     
-    const snippetData = { title, code, language };
+    const snippetData = { title, code, language, is_public: isPublic };
     
     // Log for debugging
     console.log('Saving snippet to:', `${apiUrl}/api/snippets`);
@@ -156,6 +158,7 @@ function Scripts() {
     setTitle(snippet.title);
     setCode(snippet.code);
     setLanguage(snippet.language);
+    setIsPublic(snippet.is_public === true || snippet.is_public === 'true');
   };
 
   const handleDelete = async (id) => {
@@ -271,6 +274,20 @@ function Scripts() {
             </select>
           </div>
           <div>
+            <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
+              <input
+                type="checkbox"
+                checked={isPublic}
+                onChange={(e) => setIsPublic(e.target.checked)}
+                style={{ width: '18px', height: '18px', cursor: 'pointer' }}
+              />
+              <span>Make this snippet public</span>
+            </label>
+            <p style={{ margin: '0.25rem 0 0 0', fontSize: '0.85rem', color: '#666' }}>
+              {isPublic ? '🌐 Anyone can view this snippet' : '🔒 Only you can view this snippet'}
+            </p>
+          </div>
+          <div>
             <label>Code</label>
             <textarea 
               value={code} 
@@ -313,7 +330,32 @@ function Scripts() {
             <div key={snippet.id} className="snippet-item" style={{ border: '1px solid #eee', borderRadius: '8px', padding: '1rem', marginBottom: '1rem' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
                 <div style={{ flex: 1 }}>
-                  <h4 style={{ margin: 0, marginBottom: '0.25rem' }}>{snippet.title}</h4>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.25rem' }}>
+                    <h4 style={{ margin: 0 }}>{snippet.title}</h4>
+                    {snippet.is_public === true || snippet.is_public === 'true' ? (
+                      <span style={{ 
+                        fontSize: '0.75rem', 
+                        padding: '2px 8px', 
+                        borderRadius: '12px', 
+                        backgroundColor: '#e3f2fd', 
+                        color: '#1976d2',
+                        fontWeight: 500
+                      }}>
+                        🌐 Public
+                      </span>
+                    ) : (
+                      <span style={{ 
+                        fontSize: '0.75rem', 
+                        padding: '2px 8px', 
+                        borderRadius: '12px', 
+                        backgroundColor: '#f5f5f5', 
+                        color: '#666',
+                        fontWeight: 500
+                      }}>
+                        🔒 Private
+                      </span>
+                    )}
+                  </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', fontSize: '0.875rem', color: '#718096' }}>
                     <span style={{ textTransform: 'capitalize' }}>{snippet.language || 'text'}</span>
                     {snippet.created_at && (
