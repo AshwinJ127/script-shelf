@@ -2,7 +2,7 @@ import { useState } from 'react';
 import axios from 'axios';
 import RegistrationBanner from '../components/RegistrationBanner';
 
-function Register({ onRegisterSuccess }) {
+function Register({ onRegisterSuccess, onSwitchToLogin }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [message, setMessage] = useState('');
@@ -164,6 +164,16 @@ function Register({ onRegisterSuccess }) {
         {message && (
           <p style={messageStyle}>{message}</p>
         )}
+
+        <p style={{ marginTop: '1.5rem', textAlign: 'center', fontSize: '0.9rem', color: '#4a5460', fontWeight: 400 }}>
+          Already have an account?{' '}
+          <span 
+            onClick={onSwitchToLogin} 
+            style={{ color: '#6a5acd', fontWeight: 600, cursor: 'pointer', letterSpacing: '0.005em' }}
+          >
+            Log in
+          </span>
+        </p>
       </form>
     </div>
   );
