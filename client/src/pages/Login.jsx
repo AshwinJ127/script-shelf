@@ -14,7 +14,11 @@ function Login({ onLoginSuccess, onSwitchToRegister }) {
     setMessage('');
 
     try {
-      const apiUrl = import.meta.env.VITE_API_URL;
+      const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:5050";
+      if (!apiUrl) {
+        setMessage('Error: API URL not configured');
+        return;
+      }
       const response = await axios.post(`${apiUrl}/api/users/login`, {
         email,
         password,

@@ -22,6 +22,7 @@ function Scripts({ languageFilter, selectedSnippetId }) {
   const [successMessage, setSuccessMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [highlightedSnippetId, setHighlightedSnippetId] = useState(null);
+  const [showFavoritesOnly, setShowFavoritesOnly] = useState(false);
 
 
   useEffect(() => {
@@ -189,6 +190,32 @@ function Scripts({ languageFilter, selectedSnippetId }) {
     }
   };
 
+  const handleToggleFavorite = async (snippetId) => {
+    try {
+      const response = await axios.post(
+        `${apiUrl}/api/snippets/${snippetId}/favorite`,
+        {},
+        getAuthHeaders()
+      );
+      
+      // Update the snippet in the local state
+      setSnippets(prevSnippets =>
+        prevSnippets.map(snippet =>
+          snippet.id === snippetId
+            ? { ...snippet, is_favorite: response.data.is_favorite }
+            : snippet
+        )
+      );
+      
+      setSuccessMessage(response.data.msg || (response.data.is_favorite ? 'Snippet favorited' : 'Snippet unfavorited'));
+      setTimeout(() => setSuccessMessage(''), 2000);
+    } catch (err) {
+      const errorMsg = err.response?.data?.msg || err.response?.data?.error || err.message || 'Failed to update favorite status';
+      setError(errorMsg);
+      setTimeout(() => setError(''), 3000);
+    }
+  };
+
   const handleCopy = async (snippet) => {
     try {
       await navigator.clipboard.writeText(snippet.code);
@@ -233,6 +260,11 @@ function Scripts({ languageFilter, selectedSnippetId }) {
     // Always show the selected snippet, even if it would be filtered out
     if (selectedSnippetId && snippet.id === selectedSnippetId) {
       return true;
+    }
+    
+    // Filter by favorites if enabled
+    if (showFavoritesOnly && !snippet.is_favorite) {
+      return false;
     }
     
     // First, apply language filter if provided (exact match)
@@ -331,7 +363,27 @@ function Scripts({ languageFilter, selectedSnippetId }) {
       </div>
 
       <div className="card" style={{ flex: 2 }}>
-        <h3>My Snippet Library</h3>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+          <h3 style={{ margin: 0 }}>My Snippet Library</h3>
+          <button
+            onClick={() => setShowFavoritesOnly(!showFavoritesOnly)}
+            style={{
+              padding: '6px 12px',
+              backgroundColor: showFavoritesOnly ? '#ffd700' : '#6a5acd',
+              color: showFavoritesOnly ? '#333' : '#ffffff',
+              border: 'none',
+              borderRadius: '6px',
+              cursor: 'pointer',
+              fontSize: '0.9rem',
+              fontWeight: 500,
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.5rem'
+            }}
+          >
+            {showFavoritesOnly ? 'Show All' : 'Show Favorites'}
+          </button>
+        </div>
 
         <input 
           type="text"
@@ -364,7 +416,21 @@ function Scripts({ languageFilter, selectedSnippetId }) {
             >
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
                 <div style={{ flex: 1 }}>
-                  <h4 style={{ margin: 0, marginBottom: '0.25rem' }}>{snippet.title}</h4>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.25rem', flexWrap: 'wrap' }}>
+                    <h4 style={{ margin: 0 }}>{snippet.title}</h4>
+                    {snippet.is_favorite && (
+                      <span style={{ 
+                        fontSize: '0.75rem', 
+                        padding: '2px 8px', 
+                        borderRadius: '12px', 
+                        backgroundColor: '#fff9c4', 
+                        color: '#f57f17',
+                        fontWeight: 500
+                      }}>
+                        Favorite
+                      </span>
+                    )}
+                  </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', fontSize: '0.875rem', color: '#718096' }}>
                     <span style={{ textTransform: 'capitalize' }}>{snippet.language || 'text'}</span>
                     {snippet.created_at && (
@@ -375,7 +441,24 @@ function Scripts({ languageFilter, selectedSnippetId }) {
                     )}
                   </div>
                 </div>
-                <div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                  <button
+                    onClick={() => handleToggleFavorite(snippet.id)}
+                    style={{
+                      padding: '5px 10px',
+                      backgroundColor: snippet.is_favorite ? '#ffd700' : '#6a5acd',
+                      color: snippet.is_favorite ? '#333' : '#ffffff',
+                      border: '1px solid #ddd',
+                      borderRadius: '4px',
+                      cursor: 'pointer',
+                      fontSize: '0.85rem',
+                      fontWeight: snippet.is_favorite ? 600 : 500,
+                      transition: 'all 0.2s'
+                    }}
+                    title={snippet.is_favorite ? 'Remove from favorites' : 'Add to favorites'}
+                  >
+                    {snippet.is_favorite ? 'Favorited' : 'Favorite'}
+                  </button>
                   <button 
                     onClick={() => handleCopy(snippet)} 
                     style={{ 

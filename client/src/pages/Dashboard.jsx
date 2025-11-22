@@ -6,7 +6,7 @@ const getAuthHeaders = () => {
   return { headers: { 'x-auth-token': token } };
 };
 
-const apiUrl = import.meta.env.VITE_API_URL;
+const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:5050";
 
 function Dashboard({ navigateTo, navigateToScriptsWithLanguage, navigateToSnippet }) {
   const [snippets, setSnippets] = useState([]);
@@ -16,10 +16,16 @@ function Dashboard({ navigateTo, navigateToScriptsWithLanguage, navigateToSnippe
     const fetchSnippets = async () => {
       setIsLoading(true);
       try {
+        if (!apiUrl) {
+          console.error('API URL not configured');
+          setIsLoading(false);
+          return;
+        }
         const res = await axios.get(`${apiUrl}/api/snippets`, getAuthHeaders());
-        setSnippets(res.data);
+        setSnippets(res.data || []);
       } catch (err) {
         console.error('Error fetching snippets:', err);
+        setSnippets([]);
       }
       setIsLoading(false);
     };

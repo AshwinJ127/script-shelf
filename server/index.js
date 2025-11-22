@@ -134,11 +134,30 @@ app.post('/api/snippets', auth, async (req, res) => {
 
 app.get('/api/snippets', auth, async (req, res) => {
   try {
-    const snippets = await pool.query(
-      'SELECT * FROM snippets WHERE user_id = $1 ORDER BY created_at DESC',
-      [req.user.id]
-    );
-    res.json(snippets.rows);
+    // Try to get snippets with is_favorite column, ordering favorites first
+    try {
+      const snippets = await pool.query(
+        'SELECT * FROM snippets WHERE user_id = $1 ORDER BY is_favorite DESC NULLS LAST, created_at DESC',
+        [req.user.id]
+      );
+      res.json(snippets.rows);
+    } catch (err) {
+      // If is_favorite column doesn't exist, get snippets without it
+      if (err.message.includes('column "is_favorite"')) {
+        const snippets = await pool.query(
+          'SELECT * FROM snippets WHERE user_id = $1 ORDER BY created_at DESC',
+          [req.user.id]
+        );
+        // Add is_favorite: false to each snippet for consistency
+        const snippetsWithFavorite = snippets.rows.map(snippet => ({
+          ...snippet,
+          is_favorite: false
+        }));
+        res.json(snippetsWithFavorite);
+      } else {
+        throw err;
+      }
+    }
   } catch (err) {
     console.error(err.message);
     res.status(500).send('Server error');
@@ -355,6 +374,54 @@ app.delete('/api/snippets/:id/tags/:tagId', auth, async (req, res) => {
     res.status(500).send('Server error');
   } finally {
     client.release();
+  }
+});
+
+// --- TOGGLE FAVORITE STATUS FOR A SNIPPET ---
+app.post('/api/snippets/:id/favorite', auth, async (req, res) => {
+  const snippetId = req.params.id;
+  const userId = req.user.id;
+
+  try {
+    // First, ensure the is_favorite column exists
+    try {
+      await pool.query('ALTER TABLE snippets ADD COLUMN IF NOT EXISTS is_favorite BOOLEAN DEFAULT false');
+    } catch (alterErr) {
+      // Column might already exist, which is fine - ignore the error
+    }
+
+    // Check if snippet exists and belongs to user, and get current favorite status
+    // Use the same pattern as other endpoints (PUT, DELETE) - PostgreSQL will handle type conversion
+    const snippetCheck = await pool.query(
+      'SELECT id, is_favorite FROM snippets WHERE id = $1 AND user_id = $2',
+      [snippetId, userId]
+    );
+
+    if (snippetCheck.rows.length === 0) {
+      return res.status(404).json({ msg: 'Snippet not found or user not authorized' });
+    }
+
+    const currentFavoriteStatus = snippetCheck.rows[0].is_favorite === true;
+    const newFavoriteStatus = !currentFavoriteStatus;
+
+    // Update the favorite status
+    const updatedSnippet = await pool.query(
+      'UPDATE snippets SET is_favorite = $1 WHERE id = $2 AND user_id = $3 RETURNING *',
+      [newFavoriteStatus, snippetId, userId]
+    );
+    
+    if (updatedSnippet.rows.length === 0) {
+      return res.status(404).json({ msg: 'Snippet not found or user not authorized' });
+    }
+
+    res.json({ 
+      snippet: updatedSnippet.rows[0],
+      is_favorite: newFavoriteStatus,
+      msg: newFavoriteStatus ? 'Snippet favorited' : 'Snippet unfavorited'
+    });
+  } catch (err) {
+    console.error('Error toggling favorite:', err.message);
+    res.status(500).json({ msg: 'Server error', error: err.message });
   }
 });
 
