@@ -1,9 +1,9 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Sidebar from './Sidebar';
 import Dashboard from '../pages/Dashboard';
 import Scripts from '../pages/Scripts';
 
-const Settings = () => (
+const Settings = ({ theme, setLightTheme, setDarkTheme }) => (
   <div className="dashboard-content">
     <div className="card" style={{ gridColumn: '1 / -1' }}>
       <h2 style={{ marginBottom: '0.5rem' }}>Account Preferences</h2>
@@ -31,8 +31,18 @@ const Settings = () => (
       <h3>Appearance</h3>
       <p style={{ color: '#718096', marginBottom: '1rem' }}>Switch between layout or theme presets.</p>
       <div style={{ display: 'flex', gap: '1rem' }}>
-        <button style={{ flex: 1 }}>Light Theme</button>
-        <button style={{ flex: 1 }}>Dark Theme</button>
+        <button 
+          style={{ flex: 1 }} 
+          onClick={setLightTheme}
+        >
+          Light Theme
+        </button>
+        <button 
+          style={{ flex: 1 }} 
+          onClick={setDarkTheme}
+        >
+          Dark Theme
+        </button>
       </div>
     </div>
 
@@ -49,12 +59,12 @@ const Settings = () => (
 );
 const Help = () => <div className="card"><h1>Help & Support</h1><p>Help documentation will go here.</p></div>;
 
-function ActivePage({ activeItem, setActiveItem, languageFilter, navigateToScriptsWithLanguage, selectedSnippetId, navigateToSnippet }) {
+function ActivePage({ activeItem, setActiveItem, languageFilter, navigateToScriptsWithLanguage, selectedSnippetId, navigateToSnippet, theme, setLightTheme, setDarkTheme }) {
   switch (activeItem) {
     case 'scripts':
-      return <Scripts languageFilter={languageFilter} selectedSnippetId={selectedSnippetId} />;
+      return <Scripts languageFilter={languageFilter} selectedSnippetId={selectedSnippetId} theme={theme} />;
     case 'settings':
-      return <Settings />;
+      return <Settings theme={theme} setLightTheme={setLightTheme} setDarkTheme={setDarkTheme} />;
     case 'help':
       return <Help />;
     case 'dashboard':
@@ -67,6 +77,30 @@ function MainLayout({ onLogout }) {
   const [activeItem, setActiveItem] = useState('dashboard');
   const [languageFilter, setLanguageFilter] = useState(null);
   const [selectedSnippetId, setSelectedSnippetId] = useState(null);
+  const [theme, setTheme] = useState(() => {
+    // Get theme from localStorage or default to 'light'
+    const savedTheme = localStorage.getItem('theme');
+    const initialTheme = savedTheme || 'light';
+    // Apply theme immediately to prevent flash
+    if (typeof document !== 'undefined') {
+      document.documentElement.setAttribute('data-theme', initialTheme);
+    }
+    return initialTheme;
+  });
+
+  // Apply theme to HTML element when it changes
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', theme);
+    localStorage.setItem('theme', theme);
+  }, [theme]);
+
+  const setLightTheme = () => {
+    setTheme('light');
+  };
+
+  const setDarkTheme = () => {
+    setTheme('dark');
+  };
 
   const getActivePageLabel = () => {
     const menuItems = [
@@ -122,6 +156,9 @@ function MainLayout({ onLogout }) {
           navigateToScriptsWithLanguage={handleNavigateToScriptsWithLanguage}
           selectedSnippetId={selectedSnippetId}
           navigateToSnippet={handleNavigateToSnippet}
+          theme={theme}
+          setLightTheme={setLightTheme}
+          setDarkTheme={setDarkTheme}
         />
       </div>
     </div>

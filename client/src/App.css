@@ -24,10 +24,71 @@
   --transition-slow: 350ms cubic-bezier(0.19, 1, 0.22, 1);
 }
 
+/* Dark theme - override variables when data-theme="dark" is set on html element */
+[data-theme="dark"] {
+  --sidebar-bg: #000000;
+  --sidebar-color: #e2e8f0;
+  --sidebar-hover-bg: rgba(255, 255, 255, 0.1);
+  --sidebar-active-border: rgba(255, 255, 255, 0.3);
+
+  --bg-primary: #1a1a1a;
+  --bg-primary-accent: radial-gradient(circle at top, #1e293b 0%, #0f172a 55%, #020617 100%);
+  --bg-secondary: #2a2a2a;
+  --border-color: rgba(51, 65, 85, 0.8);
+
+  --text-primary: #fafafa;
+  --text-secondary: #b5b5b5;
+  --text-accent: #818cf8;
+
+  --shadow: none;
+  --shadow-soft: none;
+  --shadow-lg: none;
+}
+
+/* Dark theme overrides for elements with hardcoded colors */
+[data-theme="dark"] .main-content {
+  background: #1a1a1a;
+}
+
+[data-theme="dark"] .main-header {
+  background: #1a1a1a;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+[data-theme="dark"] input[type="text"],
+[data-theme="dark"] select,
+[data-theme="dark"] textarea {
+  background-color: #262626;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+[data-theme="dark"] .snippet-item {
+  background: #262626;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+[data-theme="dark"] ::-webkit-scrollbar-track {
+  background: #1a1a1a;
+}
+
+[data-theme="dark"] ::-webkit-scrollbar-thumb {
+  background: #3b3b3b;
+  border: 2px solid #1a1a1a;
+}
+
+/* Make language names white in dark theme */
+[data-theme="dark"] .stat-label {
+  color: #ffffff !important;
+}
+
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
+}
+
+[data-theme="dark"] * {
+  box-shadow: none !important;
 }
 
 body {

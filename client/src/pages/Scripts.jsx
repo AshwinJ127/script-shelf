@@ -10,7 +10,7 @@ const getAuthHeaders = () => {
 
 const apiUrl = import.meta.env.VITE_API_URL || "https://script-shelf.onrender.com";
 
-function Scripts({ languageFilter, selectedSnippetId }) {
+function Scripts({ languageFilter, selectedSnippetId, theme }) {
   const [snippets, setSnippets] = useState([]);
   const [title, setTitle] = useState('');
   const [code, setCode] = useState('');
@@ -380,7 +380,7 @@ function Scripts({ languageFilter, selectedSnippetId }) {
                     onClick={() => handleCopy(snippet)} 
                     style={{ 
                       padding: '5px 10px',
-                      backgroundColor: copiedId === snippet.id ? '#4caf50' : '#6a5acd',
+                      backgroundColor: copiedId === snippet.id ? '#4caf50' : (theme === 'dark' ? '#4a4a4a' : '#6a5acd'),
                       color: 'white',
                       border: 'none',
                       borderRadius: '4px',
@@ -404,8 +404,8 @@ function Scripts({ languageFilter, selectedSnippetId }) {
                   </button>
                 </div>
               </div>
-              <pre style={{ backgroundColor: '#f4f4f4', padding: '0.5rem', overflowX: 'auto', borderRadius: '4px', marginTop: '0.5rem' }}>
-                <code>{snippet.code}</code>
+              <pre style={{ backgroundColor: theme === 'dark' ? '#000000' : '#f4f4f4', padding: '0.5rem', overflowX: 'auto', borderRadius: '4px', marginTop: '0.5rem' }}>
+                <code style={{ color: theme === 'dark' ? '#ffffff' : 'inherit' }}>{snippet.code}</code>
               </pre>
             </div>
           ))
