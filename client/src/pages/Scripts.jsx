@@ -23,7 +23,7 @@ function Scripts({ languageFilter, selectedSnippetId }) {
   const [isLoading, setIsLoading] = useState(false);
   const [highlightedSnippetId, setHighlightedSnippetId] = useState(null);
   const [showFavoritesOnly, setShowFavoritesOnly] = useState(false);
-
+  const [isPublic, setIsPublic] = useState(false);
 
   useEffect(() => {
     // Log API URL for debugging
@@ -104,6 +104,7 @@ function Scripts({ languageFilter, selectedSnippetId }) {
     setTitle('');
     setCode('');
     setLanguage('javascript');
+    setIsPublic(false);
     setEditingSnippet(null);
     setError('');
     setSuccessMessage('');
@@ -115,7 +116,7 @@ function Scripts({ languageFilter, selectedSnippetId }) {
     setSuccessMessage('');
     setIsLoading(true);
     
-    const snippetData = { title, code, language };
+    const snippetData = { title, code, language, is_public: isPublic };
     
     // Log for debugging
     console.log('Saving snippet to:', `${apiUrl}/api/snippets`);
@@ -177,6 +178,7 @@ function Scripts({ languageFilter, selectedSnippetId }) {
     setTitle(snippet.title);
     setCode(snippet.code);
     setLanguage(snippet.language);
+    setIsPublic(snippet.is_public === true || snippet.is_public === 'true');
   };
 
   const handleDelete = async (id) => {
@@ -342,6 +344,20 @@ function Scripts({ languageFilter, selectedSnippetId }) {
             </select>
           </div>
           <div>
+            <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
+              <input
+                type="checkbox"
+                checked={isPublic}
+                onChange={(e) => setIsPublic(e.target.checked)}
+                style={{ width: '18px', height: '18px', cursor: 'pointer' }}
+              />
+              <span>Make this snippet public</span>
+            </label>
+            <p style={{ margin: '0.25rem 0 0 0', fontSize: '0.85rem', color: '#666' }}>
+              {isPublic ? 'Anyone can view this snippet' : 'Only you can view this snippet'}
+            </p>
+          </div>
+          <div>
             <label>Code</label>
             <textarea 
               value={code} 
@@ -422,12 +438,35 @@ function Scripts({ languageFilter, selectedSnippetId }) {
                       <span style={{ 
                         fontSize: '0.75rem', 
                         padding: '2px 8px', 
-                        borderRadius: '12px', 
+                        borderRadius: '12px',
                         backgroundColor: '#fff9c4', 
                         color: '#f57f17',
                         fontWeight: 500
                       }}>
                         Favorite
+                      </span>
+                    )}
+                    {snippet.is_public === true || snippet.is_public === 'true' ? (
+                      <span style={{ 
+                        fontSize: '0.75rem', 
+                        padding: '2px 8px', 
+                        borderRadius: '12px', 
+                        backgroundColor: '#e3f2fd', 
+                        color: '#1976d2',
+                        fontWeight: 500
+                      }}>
+                        Public
+                      </span>
+                    ) : (
+                      <span style={{ 
+                        fontSize: '0.75rem', 
+                        padding: '2px 8px', 
+                        borderRadius: '12px', 
+                        backgroundColor: '#f5f5f5', 
+                        color: '#666',
+                        fontWeight: 500
+                      }}>
+                        Private
                       </span>
                     )}
                   </div>

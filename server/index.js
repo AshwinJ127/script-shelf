@@ -113,22 +113,39 @@ app.post('/api/users/login', async (req, res) => {
 });
 
 app.post('/api/snippets', auth, async (req, res) => {
-  const { title, code, language } = req.body;
+  const { title, code, language, is_public } = req.body;
   const userId = req.user.id;
 
   if (!title || !code) {
     return res.status(400).json({ msg: 'Please enter a title and code.' });
   }
 
+  // Default to private if not specified
+  const publicStatus = is_public === true || is_public === 'true';
+
   try {
     const newSnippet = await pool.query(
-      'INSERT INTO snippets (user_id, title, code, language) VALUES ($1, $2, $3, $4) RETURNING *',
-      [userId, title, code, language]
+      'INSERT INTO snippets (user_id, title, code, language, is_public) VALUES ($1, $2, $3, $4, $5) RETURNING *',
+      [userId, title, code, language, publicStatus]
     );
     res.status(201).json(newSnippet.rows[0]);
   } catch (err) {
     console.error(err.message);
-    res.status(500).send('Server error');
+    // If column doesn't exist yet, try without is_public
+    if (err.message.includes('column "is_public"')) {
+      try {
+        const newSnippet = await pool.query(
+          'INSERT INTO snippets (user_id, title, code, language) VALUES ($1, $2, $3, $4) RETURNING *',
+          [userId, title, code, language]
+        );
+        res.status(201).json(newSnippet.rows[0]);
+      } catch (fallbackErr) {
+        console.error(fallbackErr.message);
+        res.status(500).send('Server error');
+      }
+    } else {
+      res.status(500).send('Server error');
+    }
   }
 });
 
@@ -165,15 +182,33 @@ app.get('/api/snippets', auth, async (req, res) => {
 });
 
 app.put('/api/snippets/:id', auth, async (req, res) => {
-  const { title, code, language } = req.body;
+  const { title, code, language, is_public } = req.body;
   const snippetId = req.params.id;
   const userId = req.user.id;
 
   try {
-    const updatedSnippet = await pool.query(
-      'UPDATE snippets SET title = $1, code = $2, language = $3 WHERE id = $4 AND user_id = $5 RETURNING *',
-      [title, code, language, snippetId, userId]
-    );
+    // Handle is_public if provided
+    let updatedSnippet;
+    if (is_public !== undefined) {
+      const publicStatus = is_public === true || is_public === 'true';
+      updatedSnippet = await pool.query(
+        'UPDATE snippets SET title = $1, code = $2, language = $3, is_public = $4 WHERE id = $5 AND user_id = $6 RETURNING *',
+        [title, code, language, publicStatus, snippetId, userId]
+      );
+    } else {
+      updatedSnippet = await pool.query(
+        'UPDATE snippets SET title = $1, code = $2, language = $3 WHERE id = $4 AND user_id = $5 RETURNING *',
+        [title, code, language, snippetId, userId]
+      );
+    }
+
+    // Fallback if is_public column doesn't exist
+    if (updatedSnippet.rows.length === 0 && is_public !== undefined) {
+      updatedSnippet = await pool.query(
+        'UPDATE snippets SET title = $1, code = $2, language = $3 WHERE id = $4 AND user_id = $5 RETURNING *',
+        [title, code, language, snippetId, userId]
+      );
+    }
 
     if (updatedSnippet.rows.length === 0) {
       return res.status(404).json({ msg: 'Snippet not found or user not authorized' });
@@ -181,7 +216,24 @@ app.put('/api/snippets/:id', auth, async (req, res) => {
     res.json(updatedSnippet.rows[0]);
   } catch (err) {
     console.error(err.message);
-    res.status(500).send('Server error');
+    if (err.message.includes('column "is_public"') && is_public !== undefined) {
+      // Try without is_public if column doesn't exist
+      try {
+        const updatedSnippet = await pool.query(
+          'UPDATE snippets SET title = $1, code = $2, language = $3 WHERE id = $4 AND user_id = $5 RETURNING *',
+          [title, code, language, snippetId, userId]
+        );
+        if (updatedSnippet.rows.length === 0) {
+          return res.status(404).json({ msg: 'Snippet not found or user not authorized' });
+        }
+        res.json(updatedSnippet.rows[0]);
+      } catch (fallbackErr) {
+        console.error(fallbackErr.message);
+        res.status(500).send('Server error');
+      }
+    } else {
+      res.status(500).send('Server error');
+    }
   }
 });
 
@@ -425,6 +477,7 @@ app.post('/api/snippets/:id/favorite', auth, async (req, res) => {
   }
 });
 
+// === Server Start ===
 app.listen(PORT, () => {
   console.log(`Server is listening on port ${PORT}`);
 });
