@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import axios from 'axios';
+import { FaEye, FaEyeSlash } from 'react-icons/fa';
 import RegistrationBanner from '../components/RegistrationBanner';
 
 function Register({ onRegisterSuccess, onSwitchToLogin }) {
@@ -137,9 +138,13 @@ function Register({ onRegisterSuccess, onSwitchToLogin }) {
               fontSize: '1.25rem',
               lineHeight: 1,
               padding: 0,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: '#666',
             }}
           >
-            {showPassword ? '🙈' : '👁️'}
+            {showPassword ? <FaEyeSlash size={20} /> : <FaEye size={20} />}
           </button>
         </div>
 

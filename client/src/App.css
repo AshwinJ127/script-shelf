@@ -271,6 +271,14 @@ textarea:focus {
   box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.2);
 }
 
+input[type="password"]::-ms-reveal {
+  display: none;
+}
+
+input[type="password"]::-webkit-credentials-auto-fill-button {
+  display: none;
+}
+
 textarea {
   font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
   min-height: 150px;
