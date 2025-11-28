@@ -112,6 +112,113 @@ app.post('/api/users/login', async (req, res) => {
   }
 });
 
+// Get current user profile
+app.get('/api/users/profile', auth, async (req, res) => {
+  try {
+    const user = await pool.query(
+      'SELECT id, email FROM users WHERE id = $1',
+      [req.user.id]
+    );
+    
+    if (user.rows.length === 0) {
+      return res.status(404).json({ msg: 'User not found' });
+    }
+    
+    res.json(user.rows[0]);
+  } catch (err) {
+    console.error('Get profile error:', err.message);
+    res.status(500).json({ msg: 'Server error: ' + err.message });
+  }
+});
+
+// Update user profile (email)
+app.put('/api/users/profile', auth, async (req, res) => {
+  const { email } = req.body;
+  const userId = req.user.id;
+
+  if (!email) {
+    return res.status(400).json({ msg: 'Email is required' });
+  }
+
+  try {
+    // Check if email is already taken by another user
+    const emailCheck = await pool.query(
+      'SELECT id FROM users WHERE email = $1 AND id != $2',
+      [email, userId]
+    );
+
+    if (emailCheck.rows.length > 0) {
+      return res.status(400).json({ msg: 'Email already in use' });
+    }
+
+    const updatedUser = await pool.query(
+      'UPDATE users SET email = $1 WHERE id = $2 RETURNING id, email',
+      [email, userId]
+    );
+
+    if (updatedUser.rows.length === 0) {
+      return res.status(404).json({ msg: 'User not found' });
+    }
+
+    res.json(updatedUser.rows[0]);
+  } catch (err) {
+    console.error('Update profile error:', err.message);
+    console.error('Full error:', err);
+    res.status(500).json({ msg: 'Server error: ' + err.message });
+  }
+});
+
+// Update user password
+app.put('/api/users/password', auth, async (req, res) => {
+  console.log('PUT /api/users/password - Request received');
+  console.log('User ID:', req.user?.id);
+  const { currentPassword, newPassword } = req.body;
+  const userId = req.user.id;
+
+  if (!currentPassword || !newPassword) {
+    return res.status(400).json({ msg: 'Current password and new password are required' });
+  }
+
+  if (newPassword.length < 6) {
+    return res.status(400).json({ msg: 'New password must be at least 6 characters' });
+  }
+
+  try {
+    // Get current user with password hash
+    const user = await pool.query(
+      'SELECT password_hash FROM users WHERE id = $1',
+      [userId]
+    );
+
+    if (user.rows.length === 0) {
+      return res.status(404).json({ msg: 'User not found' });
+    }
+
+    // Verify current password
+    const isMatch = await bcrypt.compare(currentPassword, user.rows[0].password_hash);
+
+    if (!isMatch) {
+      return res.status(400).json({ msg: 'Current password is incorrect' });
+    }
+
+    // Hash new password
+    const salt = await bcrypt.genSalt(10);
+    const newPasswordHash = await bcrypt.hash(newPassword, salt);
+
+    // Update password
+    await pool.query(
+      'UPDATE users SET password_hash = $1 WHERE id = $2',
+      [newPasswordHash, userId]
+    );
+
+    res.json({ msg: 'Password updated successfully' });
+  } catch (err) {
+    console.error('Update password error:', err.message);
+    console.error('Full error:', err);
+    res.status(500).json({ msg: 'Server error: ' + err.message });
+  }
+});
+
 app.post('/api/snippets', auth, async (req, res) => {
   const { title, code, language } = req.body;
   const userId = req.user.id;

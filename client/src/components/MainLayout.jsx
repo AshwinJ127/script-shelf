@@ -1,21 +1,343 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import axios from 'axios';
 import Sidebar from './Sidebar';
 import Dashboard from '../pages/Dashboard';
 import Scripts from '../pages/Scripts';
 
-const Settings = () => (
-  <div className="dashboard-content">
-    <div className="card" style={{ gridColumn: '1 / -1' }}>
-      <h2 style={{ marginBottom: '0.5rem' }}>Account Preferences</h2>
-      <p style={{ color: '#718096', marginBottom: '1.5rem' }}>
-        Manage how ScriptShelf behaves for your account.
-      </p>
-      <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
-        <button style={{ flex: '1 1 200px' }}>Update Profile</button>
-        <button style={{ flex: '1 1 200px' }}>Change Password</button>
-        <button style={{ flex: '1 1 200px' }}>Manage Devices</button>
+const getAuthHeaders = () => {
+  const token = localStorage.getItem('authToken');
+  return { headers: { 'x-auth-token': token } };
+};
+
+const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5050';
+
+const Settings = () => {
+  const [email, setEmail] = useState('');
+  const [currentPassword, setCurrentPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [profileMessage, setProfileMessage] = useState('');
+  const [passwordMessage, setPasswordMessage] = useState('');
+  const [isLoadingProfile, setIsLoadingProfile] = useState(false);
+  const [isLoadingPassword, setIsLoadingPassword] = useState(false);
+  const [showProfileForm, setShowProfileForm] = useState(false);
+  const [showPasswordForm, setShowPasswordForm] = useState(false);
+
+  useEffect(() => {
+    fetchProfile();
+  }, []);
+
+  const fetchProfile = async () => {
+    try {
+      const res = await axios.get(`${apiUrl}/api/users/profile`, getAuthHeaders());
+      setEmail(res.data.email);
+    } catch (err) {
+      console.error('Error fetching profile:', err);
+      console.error('Error response:', err.response?.data);
+      // Set a default message if fetch fails
+      if (err.response?.status === 401) {
+        setProfileMessage('Authentication failed. Please log out and log back in.');
+      }
+    }
+  };
+
+  const handleUpdateProfile = async (e) => {
+    e.preventDefault();
+    setIsLoadingProfile(true);
+    setProfileMessage('');
+
+    try {
+      const res = await axios.put(
+        `${apiUrl}/api/users/profile`,
+        { email },
+        getAuthHeaders()
+      );
+      setProfileMessage('Profile updated successfully!');
+      setShowProfileForm(false);
+      setTimeout(() => setProfileMessage(''), 3000);
+    } catch (err) {
+      console.error('Update profile error:', err);
+      const errorMsg = err.response?.data?.msg || err.message || 'Failed to update profile';
+      setProfileMessage(errorMsg);
+    } finally {
+      setIsLoadingProfile(false);
+    }
+  };
+
+  const handleChangePassword = async (e) => {
+    e.preventDefault();
+    setIsLoadingPassword(true);
+    setPasswordMessage('');
+
+    if (newPassword !== confirmPassword) {
+      setPasswordMessage('New passwords do not match');
+      setIsLoadingPassword(false);
+      return;
+    }
+
+    try {
+      const url = `${apiUrl}/api/users/password`;
+      console.log('Updating password at URL:', url);
+      console.log('API URL:', apiUrl);
+      console.log('Auth token present:', !!localStorage.getItem('authToken'));
+      
+      await axios.put(
+        url,
+        { currentPassword, newPassword },
+        getAuthHeaders()
+      );
+      setPasswordMessage('Password updated successfully!');
+      setCurrentPassword('');
+      setNewPassword('');
+      setConfirmPassword('');
+      setShowPasswordForm(false);
+      setTimeout(() => setPasswordMessage(''), 3000);
+    } catch (err) {
+      console.error('Update password error:', err);
+      console.error('Error response:', err.response);
+      console.error('Error status:', err.response?.status);
+      console.error('Error URL:', err.config?.url);
+      const errorMsg = err.response?.data?.msg || err.message || 'Failed to update password';
+      setPasswordMessage(errorMsg);
+    } finally {
+      setIsLoadingPassword(false);
+    }
+  };
+
+  return (
+    <div className="dashboard-content">
+      <div className="card" style={{ gridColumn: '1 / -1' }}>
+        <h2 style={{ marginBottom: '0.5rem' }}>Account Preferences</h2>
+        <p style={{ color: '#718096', marginBottom: '1.5rem' }}>
+          Manage how ScriptShelf behaves for your account.
+        </p>
+        
+        {/* Update Profile Section */}
+        <div style={{ marginBottom: '2rem', padding: '1.5rem', backgroundColor: '#f7fafc', borderRadius: '8px' }}>
+          <h3 style={{ marginBottom: '1rem' }}>Update Profile</h3>
+          {!showProfileForm ? (
+            <button 
+              onClick={() => setShowProfileForm(true)}
+              style={{ 
+                padding: '0.75rem 1.5rem',
+                backgroundColor: '#667eea',
+                color: 'white',
+                border: 'none',
+                borderRadius: '8px',
+                cursor: 'pointer',
+                fontWeight: 500
+              }}
+            >
+              Update Profile
+            </button>
+          ) : (
+            <form onSubmit={handleUpdateProfile}>
+              <div style={{ marginBottom: '1rem' }}>
+                <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 500 }}>
+                  Email
+                </label>
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                  style={{
+                    width: '100%',
+                    padding: '0.75rem',
+                    border: '1px solid #ddd',
+                    borderRadius: '8px',
+                    fontSize: '1rem',
+                    boxSizing: 'border-box'
+                  }}
+                />
+              </div>
+              {profileMessage && (
+                <div style={{
+                  padding: '0.75rem',
+                  marginBottom: '1rem',
+                  backgroundColor: profileMessage.includes('success') ? '#d4edda' : '#f8d7da',
+                  color: profileMessage.includes('success') ? '#155724' : '#721c24',
+                  borderRadius: '4px',
+                  fontSize: '0.9rem'
+                }}>
+                  {profileMessage}
+                </div>
+              )}
+              <div style={{ display: 'flex', gap: '1rem' }}>
+                <button
+                  type="submit"
+                  disabled={isLoadingProfile}
+                  style={{
+                    padding: '0.75rem 1.5rem',
+                    backgroundColor: '#667eea',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '8px',
+                    cursor: isLoadingProfile ? 'not-allowed' : 'pointer',
+                    fontWeight: 500,
+                    opacity: isLoadingProfile ? 0.6 : 1
+                  }}
+                >
+                  {isLoadingProfile ? 'Updating...' : 'Save Changes'}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowProfileForm(false);
+                    setProfileMessage('');
+                    fetchProfile();
+                  }}
+                  style={{
+                    padding: '0.75rem 1.5rem',
+                    backgroundColor: '#e2e8f0',
+                    color: '#4a5568',
+                    border: 'none',
+                    borderRadius: '8px',
+                    cursor: 'pointer',
+                    fontWeight: 500
+                  }}
+                >
+                  Cancel
+                </button>
+              </div>
+            </form>
+          )}
+        </div>
+
+        {/* Change Password Section */}
+        <div style={{ marginBottom: '2rem', padding: '1.5rem', backgroundColor: '#f7fafc', borderRadius: '8px' }}>
+          <h3 style={{ marginBottom: '1rem' }}>Change Password</h3>
+          {!showPasswordForm ? (
+            <button 
+              onClick={() => setShowPasswordForm(true)}
+              style={{ 
+                padding: '0.75rem 1.5rem',
+                backgroundColor: '#667eea',
+                color: 'white',
+                border: 'none',
+                borderRadius: '8px',
+                cursor: 'pointer',
+                fontWeight: 500
+              }}
+            >
+              Change Password
+            </button>
+          ) : (
+            <form onSubmit={handleChangePassword}>
+              <div style={{ marginBottom: '1rem' }}>
+                <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 500 }}>
+                  Current Password
+                </label>
+                <input
+                  type="password"
+                  value={currentPassword}
+                  onChange={(e) => setCurrentPassword(e.target.value)}
+                  required
+                  style={{
+                    width: '100%',
+                    padding: '0.75rem',
+                    border: '1px solid #ddd',
+                    borderRadius: '8px',
+                    fontSize: '1rem',
+                    boxSizing: 'border-box'
+                  }}
+                />
+              </div>
+              <div style={{ marginBottom: '1rem' }}>
+                <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 500 }}>
+                  New Password
+                </label>
+                <input
+                  type="password"
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
+                  required
+                  minLength="6"
+                  style={{
+                    width: '100%',
+                    padding: '0.75rem',
+                    border: '1px solid #ddd',
+                    borderRadius: '8px',
+                    fontSize: '1rem',
+                    boxSizing: 'border-box'
+                  }}
+                />
+              </div>
+              <div style={{ marginBottom: '1rem' }}>
+                <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 500 }}>
+                  Confirm New Password
+                </label>
+                <input
+                  type="password"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  required
+                  minLength="6"
+                  style={{
+                    width: '100%',
+                    padding: '0.75rem',
+                    border: '1px solid #ddd',
+                    borderRadius: '8px',
+                    fontSize: '1rem',
+                    boxSizing: 'border-box'
+                  }}
+                />
+              </div>
+              {passwordMessage && (
+                <div style={{
+                  padding: '0.75rem',
+                  marginBottom: '1rem',
+                  backgroundColor: passwordMessage.includes('success') ? '#d4edda' : '#f8d7da',
+                  color: passwordMessage.includes('success') ? '#155724' : '#721c24',
+                  borderRadius: '4px',
+                  fontSize: '0.9rem'
+                }}>
+                  {passwordMessage}
+                </div>
+              )}
+              <div style={{ display: 'flex', gap: '1rem' }}>
+                <button
+                  type="submit"
+                  disabled={isLoadingPassword}
+                  style={{
+                    padding: '0.75rem 1.5rem',
+                    backgroundColor: '#667eea',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '8px',
+                    cursor: isLoadingPassword ? 'not-allowed' : 'pointer',
+                    fontWeight: 500,
+                    opacity: isLoadingPassword ? 0.6 : 1
+                  }}
+                >
+                  {isLoadingPassword ? 'Updating...' : 'Update Password'}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowPasswordForm(false);
+                    setPasswordMessage('');
+                    setCurrentPassword('');
+                    setNewPassword('');
+                    setConfirmPassword('');
+                  }}
+                  style={{
+                    padding: '0.75rem 1.5rem',
+                    backgroundColor: '#e2e8f0',
+                    color: '#4a5568',
+                    border: 'none',
+                    borderRadius: '8px',
+                    cursor: 'pointer',
+                    fontWeight: 500
+                  }}
+                >
+                  Cancel
+                </button>
+              </div>
+            </form>
+          )}
+        </div>
       </div>
-    </div>
 
     <div className="card">
       <h3>Snippet Management</h3>
@@ -46,7 +368,9 @@ const Settings = () => (
       </div>
     </div>
   </div>
-);
+  );
+};
+
 const Help = () => <div className="card"><h1>Help & Support</h1><p>Help documentation will go here.</p></div>;
 
 function ActivePage({ activeItem, setActiveItem, languageFilter, navigateToScriptsWithLanguage, selectedSnippetId, navigateToSnippet }) {
