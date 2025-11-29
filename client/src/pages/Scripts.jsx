@@ -2,6 +2,8 @@
 
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
+import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
 
 const getAuthHeaders = () => {
   const token = localStorage.getItem('authToken');
@@ -10,7 +12,20 @@ const getAuthHeaders = () => {
 
 const apiUrl = import.meta.env.VITE_API_URL || "https://script-shelf.onrender.com";
 
-function Scripts({ languageFilter, selectedSnippetId, theme }) {
+// Map language names to syntax highlighter language identifiers
+const mapLanguageToSyntaxHighlighter = (lang) => {
+  const languageMap = {
+    'javascript': 'javascript',
+    'python': 'python',
+    'sql': 'sql',
+    'css': 'css',
+    'html': 'html',
+    'text': 'plaintext'
+  };
+  return languageMap[lang?.toLowerCase()] || 'plaintext';
+};
+
+function Scripts({ languageFilter, selectedSnippetId }) {
   const [snippets, setSnippets] = useState([]);
   const [title, setTitle] = useState('');
   const [code, setCode] = useState('');
@@ -404,9 +419,22 @@ function Scripts({ languageFilter, selectedSnippetId, theme }) {
                   </button>
                 </div>
               </div>
-              <pre style={{ backgroundColor: theme === 'dark' ? '#000000' : '#f4f4f4', padding: '0.5rem', overflowX: 'auto', borderRadius: '4px', marginTop: '0.5rem' }}>
-                <code style={{ color: theme === 'dark' ? '#ffffff' : 'inherit' }}>{snippet.code}</code>
-              </pre>
+              <div style={{ marginTop: '0.5rem', borderRadius: '4px', overflow: 'hidden' }}>
+                <SyntaxHighlighter
+                  language={mapLanguageToSyntaxHighlighter(snippet.language)}
+                  style={vscDarkPlus}
+                  customStyle={{
+                    margin: 0,
+                    padding: '0.75rem',
+                    borderRadius: '4px',
+                    fontSize: '0.875rem',
+                    lineHeight: '1.5'
+                  }}
+                  showLineNumbers={false}
+                >
+                  {snippet.code || ''}
+                </SyntaxHighlighter>
+              </div>
             </div>
           ))
         )}
