@@ -2,14 +2,24 @@ const API_URL = "https://script-shelf.onrender.com";
 
 const authView = document.getElementById("auth-view");
 const mainView = document.getElementById("main-view");
+const createView = document.getElementById("create-view");
+
 const emailInput = document.getElementById("email");
 const passInput = document.getElementById("password");
 const errorMsg = document.getElementById("error-msg");
 const snippetList = document.getElementById("snippet-list");
 
+const newTitle = document.getElementById("new-title");
+const newLang = document.getElementById("new-lang");
+const newCode = document.getElementById("new-code");
+const createError = document.getElementById("create-error");
+
+let currentToken = null;
+
 chrome.storage.local.get("authToken", (data) => {
   if (data.authToken) {
-    showMain(data.authToken);
+    currentToken = data.authToken;
+    showMain();
   }
 });
 
@@ -27,8 +37,9 @@ document.getElementById("login-btn").addEventListener("click", async () => {
 
     const data = await res.json();
     if (res.ok) {
+      currentToken = data.token;
       chrome.storage.local.set({ authToken: data.token });
-      showMain(data.token);
+      showMain();
     } else {
       errorMsg.innerText = data.msg || "Login failed";
     }
@@ -39,17 +50,69 @@ document.getElementById("login-btn").addEventListener("click", async () => {
 
 document.getElementById("logout-btn").addEventListener("click", () => {
   chrome.storage.local.remove("authToken");
+  currentToken = null;
   authView.classList.remove("hidden");
   mainView.classList.add("hidden");
+  createView.classList.add("hidden");
 });
 
-async function showMain(token) {
+document.getElementById("new-btn").addEventListener("click", () => {
+  mainView.classList.add("hidden");
+  createView.classList.remove("hidden");
+  createError.innerText = "";
+  newTitle.value = "";
+  newCode.value = "";
+  newLang.value = "javascript";
+});
+
+document.getElementById("cancel-btn").addEventListener("click", () => {
+  createView.classList.add("hidden");
+  mainView.classList.remove("hidden");
+});
+
+document.getElementById("save-btn").addEventListener("click", async () => {
+  const title = newTitle.value;
+  const code = newCode.value;
+  const language = newLang.value;
+
+  if (!title || !code) {
+    createError.innerText = "Title and Code are required";
+    return;
+  }
+
+  createError.innerText = "Saving...";
+
+  try {
+    const res = await fetch(`${API_URL}/api/snippets`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "x-auth-token": currentToken
+      },
+      body: JSON.stringify({ title, code, language, folder_id: null })
+    });
+
+    if (res.ok) {
+      createView.classList.add("hidden");
+      mainView.classList.remove("hidden");
+      showMain();
+    } else {
+      const data = await res.json();
+      createError.innerText = data.msg || "Failed to save";
+    }
+  } catch (err) {
+    createError.innerText = "Network error";
+  }
+});
+
+async function showMain() {
   authView.classList.add("hidden");
+  createView.classList.add("hidden");
   mainView.classList.remove("hidden");
   
   try {
     const res = await fetch(`${API_URL}/api/snippets`, {
-      headers: { "x-auth-token": token }
+      headers: { "x-auth-token": currentToken }
     });
     const snippets = await res.json();
     renderSnippets(snippets);
@@ -87,7 +150,7 @@ function renderSnippets(snippets) {
           action: "PASTE_SNIPPET", 
           code: s.code 
         });
-        window.close(); 
+        window.close();
       }
     });
 
