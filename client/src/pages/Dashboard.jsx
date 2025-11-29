@@ -25,6 +25,7 @@ const mapLanguageToSyntaxHighlighter = (lang) => {
 
 function Dashboard({ navigateTo, navigateToScriptsWithLanguage, navigateToSnippet }) {
   const [snippets, setSnippets] = useState([]);
+  const [favoriteSnippets, setFavoriteSnippets] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -38,9 +39,18 @@ function Dashboard({ navigateTo, navigateToScriptsWithLanguage, navigateToSnippe
       }
       setIsLoading(false);
     };
+    const fetchFavorites = async () => {
+      try {
+        const res = await axios.get(`${apiUrl}/api/snippets/favorites`, getAuthHeaders());
+        setFavoriteSnippets(res.data.favorites || []);
+      } catch (err) {
+        console.error("Error fetching favorites:", err);
+      }
+    };
     fetchSnippets();
+    fetchFavorites();
   }, []);
-
+    
   const totalSnippets = snippets.length;
 
   const languageCounts = snippets.reduce((counts, snippet) => {
@@ -48,6 +58,15 @@ function Dashboard({ navigateTo, navigateToScriptsWithLanguage, navigateToSnippe
     counts[lang] = (counts[lang] || 0) + 1;
     return counts;
   }, {});
+
+  const favoritedSnippetObjects = snippets.filter(s => 
+    favoriteSnippets.includes(s.id)
+  );
+  
+  const recentTwoFavorites = [...favoritedSnippetObjects]
+    .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
+    .slice(0, 2);
+  
 
   const sortedLanguages = Object.entries(languageCounts).sort(([, countA], [, countB]) => countB - countA);
   
