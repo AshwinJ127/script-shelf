@@ -1,5 +1,6 @@
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
 
+.light-theme,
 :root {
   --sidebar-bg: linear-gradient(135deg, #5a67d8 0%, #7f53ac 100%);
   --sidebar-color: #ffffff;
@@ -22,6 +23,26 @@
 
   --transition-medium: 200ms ease;
   --transition-slow: 350ms cubic-bezier(0.19, 1, 0.22, 1);
+}
+
+.dark-theme {
+  --sidebar-bg: linear-gradient(135deg, #4c1d95 0%, #1e293b 100%);
+  --sidebar-color: #e5e7eb;
+  --sidebar-hover-bg: rgba(148, 163, 184, 0.18);
+  --sidebar-active-border: #a5b4fc;
+
+  --bg-primary: #020617;
+  --bg-primary-accent: radial-gradient(circle at top, #020617 0%, #020617 55%, #020617 100%);
+  --bg-secondary: rgba(15, 23, 42, 0.92);
+  --border-color: rgba(51, 65, 85, 0.9);
+
+  --text-primary: #f9fafb;
+  --text-secondary: #cbd5f5;
+  --text-accent: #c4b5fd;
+
+  --shadow: 0 18px 40px rgba(15, 23, 42, 0.9);
+  --shadow-soft: 0 16px 32px rgba(15, 23, 42, 0.85);
+  --shadow-lg: 0 28px 60px rgba(15, 23, 42, 0.95);
 }
 
 * {
@@ -155,6 +176,7 @@ body {
   font-size: 2.15rem;
   font-weight: 650;
   letter-spacing: -0.01em;
+  color: #111827;
 }
 
 .dashboard-content,
