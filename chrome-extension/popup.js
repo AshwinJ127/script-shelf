@@ -1,0 +1,96 @@
+const API_URL = "https://script-shelf.onrender.com";
+
+const authView = document.getElementById("auth-view");
+const mainView = document.getElementById("main-view");
+const emailInput = document.getElementById("email");
+const passInput = document.getElementById("password");
+const errorMsg = document.getElementById("error-msg");
+const snippetList = document.getElementById("snippet-list");
+
+chrome.storage.local.get("authToken", (data) => {
+  if (data.authToken) {
+    showMain(data.authToken);
+  }
+});
+
+document.getElementById("login-btn").addEventListener("click", async () => {
+  const email = emailInput.value;
+  const password = passInput.value;
+  errorMsg.innerText = "";
+
+  try {
+    const res = await fetch(`${API_URL}/api/users/login`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, password })
+    });
+
+    const data = await res.json();
+    if (res.ok) {
+      chrome.storage.local.set({ authToken: data.token });
+      showMain(data.token);
+    } else {
+      errorMsg.innerText = data.msg || "Login failed";
+    }
+  } catch (err) {
+    errorMsg.innerText = "Network error";
+  }
+});
+
+document.getElementById("logout-btn").addEventListener("click", () => {
+  chrome.storage.local.remove("authToken");
+  authView.classList.remove("hidden");
+  mainView.classList.add("hidden");
+});
+
+async function showMain(token) {
+  authView.classList.add("hidden");
+  mainView.classList.remove("hidden");
+  
+  try {
+    const res = await fetch(`${API_URL}/api/snippets`, {
+      headers: { "x-auth-token": token }
+    });
+    const snippets = await res.json();
+    renderSnippets(snippets);
+
+    document.getElementById("search").addEventListener("input", (e) => {
+      const term = e.target.value.toLowerCase();
+      const filtered = snippets.filter(s => s.title.toLowerCase().includes(term));
+      renderSnippets(filtered);
+    });
+
+  } catch (err) {
+    snippetList.innerText = "Failed to load snippets.";
+  }
+}
+
+function renderSnippets(snippets) {
+  snippetList.innerHTML = "";
+  if (snippets.length === 0) {
+    snippetList.innerText = "No snippets found.";
+    return;
+  }
+
+  snippets.forEach(s => {
+    const div = document.createElement("div");
+    div.className = "snippet-item";
+    div.innerHTML = `
+      <div class="snippet-title">${s.title}</div>
+      <div class="snippet-lang">${s.language}</div>
+    `;
+    
+    div.addEventListener("click", async () => {
+      const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+      if (tab) {
+        chrome.tabs.sendMessage(tab.id, { 
+          action: "PASTE_SNIPPET", 
+          code: s.code 
+        });
+        window.close(); 
+      }
+    });
+
+    snippetList.appendChild(div);
+  });
+}

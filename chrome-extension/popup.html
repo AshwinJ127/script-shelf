@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <style>
+    body { width: 300px; padding: 15px; font-family: sans-serif; }
+    input, button { width: 100%; padding: 8px; margin-bottom: 10px; box-sizing: border-box; }
+    button { background: #667eea; color: white; border: none; cursor: pointer; }
+    .hidden { display: none; }
+    .snippet-item { padding: 10px; border-bottom: 1px solid #eee; cursor: pointer; }
+    .snippet-item:hover { background: #f0f0f0; }
+    .snippet-title { font-weight: bold; font-size: 14px; }
+    .snippet-lang { font-size: 11px; color: #666; }
+  </style>
+</head>
+<body>
+  <!-- Login View -->
+  <div id="auth-view">
+    <h3>Sign In</h3>
+    <input type="email" id="email" placeholder="Email">
+    <input type="password" id="password" placeholder="Password">
+    <button id="login-btn">Login</button>
+    <div id="error-msg" style="color: red; font-size: 12px;"></div>
+  </div>
+
+  <!-- Main Library View -->
+  <div id="main-view" class="hidden">
+    <div style="display: flex; justify-content: space-between; align-items: center;">
+      <h3>My Library</h3>
+      <button id="logout-btn" style="width: auto; padding: 4px 8px; font-size: 12px; margin: 0;">Logout</button>
+    </div>
+    <input type="text" id="search" placeholder="Search snippets...">
+    <div id="snippet-list">Loading...</div>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>
