@@ -37,14 +37,18 @@ function Scripts({ languageFilter, selectedSnippetId, theme = 'light' }) {
   const [successMessage, setSuccessMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [highlightedSnippetId, setHighlightedSnippetId] = useState(null);
-  const [favoriteSnippets, setFavoriteSnippets] = useState([]);
+  const [tags, setTags] = useState([]);  
+  const isFavorite = (snippet) => {
+    return snippet.tags?.some(tag => tag.name === "favorite");
+  };
+  
 
   useEffect(() => {
     // Log API URL for debugging
     console.log('API URL:', apiUrl);
     console.log('Environment VITE_API_URL:', import.meta.env.VITE_API_URL);
     fetchSnippets();
-    fetchFavorites();
+    fetchTags();
   }, []);
 
   // Scroll to and highlight the selected snippet when it loads
@@ -114,14 +118,15 @@ function Scripts({ languageFilter, selectedSnippetId, theme = 'light' }) {
     }
   };
 
-  const fetchFavorites = async () => {
+  const fetchTags = async () => {
     try {
-      const res = await axios.get(`${apiUrl}/api/snippets/favorites`, getAuthHeaders());
-        setFavoriteSnippets(res.data.favorites || []);
-      } catch (err) {
-        console.error("Failed to load favorites:", err);
-      }
-    };
+      const res = await axios.get(`${apiUrl}/api/tags`, getAuthHeaders());
+      setTags(res.data || []);
+    } catch (err) {
+      console.error("Error fetching tags:", err);
+    }
+  };
+  
 
   const clearForm = () => {
     setTitle('');
@@ -213,21 +218,34 @@ function Scripts({ languageFilter, selectedSnippetId, theme = 'light' }) {
     }
   };
 
-  const toggleFavorite = async (snippetId) => {
-    const isFavorite = favoriteSnippets.includes(snippetId);
+  const toggleFavorite = async (snippet) => {
+    const currentlyFavorite = isFavorite(snippet);
   
     try {
-      if (isFavorite) {
-        await axios.delete(`${apiUrl}/api/snippets/${snippetId}/favorite`, getAuthHeaders());
-        setFavoriteSnippets(prev => prev.filter(id => id !== snippetId));
+      if (!currentlyFavorite) {
+        await axios.post(
+          `${apiUrl}/api/snippets/${snippet.id}/tags`,
+          { name: "favorite" },
+          getAuthHeaders()
+        );
       } else {
-        await axios.post(`${apiUrl}/api/snippets/${snippetId}/favorite`, {}, getAuthHeaders());
-        setFavoriteSnippets(prev => [...prev, snippetId]);
+        const favoriteTag = snippet.tags.find(t => t.name === "favorite");
+        if (favoriteTag) {
+          await axios.delete(
+            `${apiUrl}/api/snippets/${snippet.id}/tags/${favoriteTag.id}`,
+            getAuthHeaders()
+          );
+        }
       }
+  
+      await fetchSnippets();
+  
     } catch (err) {
       console.error("Failed to toggle favorite:", err);
     }
   };
+  
+  
 
   const handleCopy = async (snippet) => {
     try {
@@ -389,7 +407,6 @@ function Scripts({ languageFilter, selectedSnippetId, theme = 'light' }) {
           <p>No snippets found matching "{searchTerm}".</p>
         ) : (
           filteredSnippets.map(snippet => {
-            const isFavorite = favoriteSnippets.includes(snippet.id);
             return (
             <div 
               key={snippet.id} 
@@ -409,20 +426,20 @@ function Scripts({ languageFilter, selectedSnippetId, theme = 'light' }) {
                   <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                     <button
                       type="button"
-                      onClick={() => toggleFavorite(snippet.id)}
-                      aria-label={isFavorite ? 'Remove from favorites' : 'Mark as favorite'}
+                      onClick={() => toggleFavorite(snippet)}
+                      aria-label={isFavorite(snippet) ? 'Remove from favorites' : 'Mark as favorite'}
                       style={{
                         border: 'none',
                         background: 'transparent',
                         cursor: 'pointer',
                         fontSize: '1.25rem',
                         lineHeight: 1,
-                        color: isFavorite ? '#f6ad55' : '#cbd5f5',
+                        color: isFavorite(snippet) ? '#f6ad55' : '#cbd5f5',
                         transition: 'color 0.2s',
                         padding: 0
                       }}
                     >
-                      {isFavorite ? '★' : '☆'}
+                      {isFavorite(snippet) ? '★' : '☆'}
                     </button>
                     <h4 style={{ margin: 0 }}>{snippet.title}</h4>
                   </div>

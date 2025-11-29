@@ -25,8 +25,8 @@ const mapLanguageToSyntaxHighlighter = (lang) => {
 
 function Dashboard({ navigateTo, navigateToScriptsWithLanguage, navigateToSnippet }) {
   const [snippets, setSnippets] = useState([]);
-  const [favoriteSnippets, setFavoriteSnippets] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [tags, setTags] = useState([]);
 
   useEffect(() => {
     const fetchSnippets = async () => {
@@ -39,16 +39,16 @@ function Dashboard({ navigateTo, navigateToScriptsWithLanguage, navigateToSnippe
       }
       setIsLoading(false);
     };
-    const fetchFavorites = async () => {
+    const fetchTags = async () => {
       try {
-        const res = await axios.get(`${apiUrl}/api/snippets/favorites`, getAuthHeaders());
-        setFavoriteSnippets(res.data.favorites || []);
+        const res = await axios.get(`${apiUrl}/api/tags`, getAuthHeaders());
+        setTags(res.data || []);
       } catch (err) {
-        console.error("Error fetching favorites:", err);
+        console.error("Error fetching tags:", err);
       }
-    };
+    };    
     fetchSnippets();
-    fetchFavorites();
+    fetchTags();
   }, []);
     
   const totalSnippets = snippets.length;
@@ -59,9 +59,11 @@ function Dashboard({ navigateTo, navigateToScriptsWithLanguage, navigateToSnippe
     return counts;
   }, {});
 
-  const favoritedSnippetObjects = snippets.filter(s => 
-    favoriteSnippets.includes(s.id)
-  );
+  const isFavorite = (snippet) => {
+    return snippet.tags?.some(t => t.name === "favorite");
+  };  
+
+  const favoritedSnippetObjects = snippets.filter(s => isFavorite(s));
   
   const recentTwoFavorites = [...favoritedSnippetObjects]
     .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
@@ -80,6 +82,8 @@ function Dashboard({ navigateTo, navigateToScriptsWithLanguage, navigateToSnippe
     const date = new Date(dateString);
     return date.toLocaleDateString();
   };
+
+
 
   return (
     <div className="dashboard-content"> 
@@ -217,7 +221,7 @@ function Dashboard({ navigateTo, navigateToScriptsWithLanguage, navigateToSnippe
       </div>
       <div className="card">
         <h3>Recently Favorited</h3>
-          {favoriteSnippets.length === 0 ? (
+          {recentTwoFavorites.length === 0 ? (
             <p>No favorites yet.</p>
           ) : (
             <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
