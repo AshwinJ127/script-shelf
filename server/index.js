@@ -313,6 +313,49 @@ app.get('/api/snippets/:id/versions', auth, async (req, res) => {
   }
 });
 
+app.get('/api/snippets/favorites', auth, async (req, res) => {
+  try {
+    const result = await pool.query(
+      'SELECT snippet_id FROM favorite_snippets WHERE user_id = $1',
+      [req.user.id]
+    );
+    res.json({ favorites: result.rows.map(row => row.snippet_id) });
+  } catch (err) {
+    console.error('Error fetching favorites:', err.message);
+    res.status(500).json({ msg: 'Server error' });
+  }
+});
+
+app.post('/api/snippets/:id/favorite', auth, async (req, res) => {
+  try {
+    await pool.query(
+      `INSERT INTO favorite_snippets (user_id, snippet_id)
+       VALUES ($1, $2)
+       ON CONFLICT DO NOTHING`,
+      [req.user.id, req.params.id]
+    );
+    res.json({ msg: 'Added to favorites' });
+  } catch (err) {
+    console.error('Error adding favorite:', err.message);
+    res.status(500).json({ msg: 'Server error' });
+  }
+});
+
+app.delete('/api/snippets/:id/favorite', auth, async (req, res) => {
+  try {
+    await pool.query(
+      `DELETE FROM favorite_snippets 
+       WHERE user_id = $1 AND snippet_id = $2`,
+      [req.user.id, req.params.id]
+    );
+    res.json({ msg: 'Removed from favorites' });
+  } catch (err) {
+    console.error('Error removing favorite:', err.message);
+    res.status(500).json({ msg: 'Server error' });
+  }
+});
+
+
 app.get('/api/folders', auth, async (req, res) => {
   try {
     const folders = await pool.query(
