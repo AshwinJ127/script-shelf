@@ -40,15 +40,11 @@ function Scripts({ languageFilter, selectedSnippetId, theme = 'light' }) {
   const [favoriteSnippets, setFavoriteSnippets] = useState([]);
 
   useEffect(() => {
-    localStorage.setItem('favoriteSnippets', JSON.stringify(favoriteSnippets));
-  }, [favoriteSnippets]);
-
-
-  useEffect(() => {
     // Log API URL for debugging
     console.log('API URL:', apiUrl);
     console.log('Environment VITE_API_URL:', import.meta.env.VITE_API_URL);
     fetchSnippets();
+    fetchFavorites();
   }, []);
 
   // Scroll to and highlight the selected snippet when it loads
@@ -95,8 +91,7 @@ function Scripts({ languageFilter, selectedSnippetId, theme = 'light' }) {
         status: err.response?.status,
         request: err.request,
         code: err.code
-      });
-      
+      });    
       if (err.code === 'ECONNABORTED' || err.message.includes('timeout')) {
         setError(`Request timed out. Check if server is running at ${apiUrl}`);
       } else if (err.response) {
@@ -118,6 +113,15 @@ function Scripts({ languageFilter, selectedSnippetId, theme = 'light' }) {
       setIsLoading(false);
     }
   };
+
+  const fetchFavorites = async () => {
+    try {
+      const res = await axios.get(`${apiUrl}/api/snippets/favorites`, getAuthHeaders());
+        setFavoriteSnippets(res.data.favorites || []);
+      } catch (err) {
+        console.error("Failed to load favorites:", err);
+      }
+    };
 
   const clearForm = () => {
     setTitle('');
@@ -209,14 +213,20 @@ function Scripts({ languageFilter, selectedSnippetId, theme = 'light' }) {
     }
   };
 
-  const toggleFavorite = (snippetId) => {
-    setFavoriteSnippets((prev) => {
-      const exists = prev.includes(snippetId);
-      if (exists) {
-        return prev.filter((id) => id !== snippetId);
+  const toggleFavorite = async (snippetId) => {
+    const isFavorite = favoriteSnippets.includes(snippetId);
+  
+    try {
+      if (isFavorite) {
+        await axios.delete(`${apiUrl}/api/snippets/${snippetId}/favorite`, getAuthHeaders());
+        setFavoriteSnippets(prev => prev.filter(id => id !== snippetId));
+      } else {
+        await axios.post(`${apiUrl}/api/snippets/${snippetId}/favorite`, {}, getAuthHeaders());
+        setFavoriteSnippets(prev => [...prev, snippetId]);
       }
-      return [...prev, snippetId];
-    });
+    } catch (err) {
+      console.error("Failed to toggle favorite:", err);
+    }
   };
 
   const handleCopy = async (snippet) => {
