@@ -25,7 +25,7 @@ const mapLanguageToSyntaxHighlighter = (lang) => {
   return languageMap[lang?.toLowerCase()] || 'plaintext';
 };
 
-function Scripts({ languageFilter, selectedSnippetId }) {
+function Scripts({ languageFilter, selectedSnippetId, theme = 'light' }) {
   const [snippets, setSnippets] = useState([]);
   const [title, setTitle] = useState('');
   const [code, setCode] = useState('');
@@ -37,6 +37,19 @@ function Scripts({ languageFilter, selectedSnippetId }) {
   const [successMessage, setSuccessMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [highlightedSnippetId, setHighlightedSnippetId] = useState(null);
+  const [favoriteSnippets, setFavoriteSnippets] = useState(() => {
+    try {
+      const stored = localStorage.getItem('favoriteSnippets');
+      return stored ? JSON.parse(stored) : [];
+    } catch (err) {
+      console.error('Failed to parse favorite snippets from storage:', err);
+      return [];
+    }
+  });
+
+  useEffect(() => {
+    localStorage.setItem('favoriteSnippets', JSON.stringify(favoriteSnippets));
+  }, [favoriteSnippets]);
 
 
   useEffect(() => {
@@ -204,6 +217,16 @@ function Scripts({ languageFilter, selectedSnippetId }) {
     }
   };
 
+  const toggleFavorite = (snippetId) => {
+    setFavoriteSnippets((prev) => {
+      const exists = prev.includes(snippetId);
+      if (exists) {
+        return prev.filter((id) => id !== snippetId);
+      }
+      return [...prev, snippetId];
+    });
+  };
+
   const handleCopy = async (snippet) => {
     try {
       await navigator.clipboard.writeText(snippet.code);
@@ -363,7 +386,9 @@ function Scripts({ languageFilter, selectedSnippetId }) {
         ) : filteredSnippets.length === 0 ? (
           <p>No snippets found matching "{searchTerm}".</p>
         ) : (
-          filteredSnippets.map(snippet => (
+          filteredSnippets.map(snippet => {
+            const isFavorite = favoriteSnippets.includes(snippet.id);
+            return (
             <div 
               key={snippet.id} 
               id={`snippet-${snippet.id}`}
@@ -379,7 +404,26 @@ function Scripts({ languageFilter, selectedSnippetId }) {
             >
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
                 <div style={{ flex: 1 }}>
-                  <h4 style={{ margin: 0, marginBottom: '0.25rem' }}>{snippet.title}</h4>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                    <button
+                      type="button"
+                      onClick={() => toggleFavorite(snippet.id)}
+                      aria-label={isFavorite ? 'Remove from favorites' : 'Mark as favorite'}
+                      style={{
+                        border: 'none',
+                        background: 'transparent',
+                        cursor: 'pointer',
+                        fontSize: '1.25rem',
+                        lineHeight: 1,
+                        color: isFavorite ? '#f6ad55' : '#cbd5f5',
+                        transition: 'color 0.2s',
+                        padding: 0
+                      }}
+                    >
+                      {isFavorite ? '★' : '☆'}
+                    </button>
+                    <h4 style={{ margin: 0 }}>{snippet.title}</h4>
+                  </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', fontSize: '0.875rem', color: '#718096' }}>
                     <span style={{ textTransform: 'capitalize' }}>{snippet.language || 'text'}</span>
                     {snippet.created_at && (
@@ -436,7 +480,8 @@ function Scripts({ languageFilter, selectedSnippetId }) {
                 </SyntaxHighlighter>
               </div>
             </div>
-          ))
+            );
+          })
         )}
       </div>
     </div>

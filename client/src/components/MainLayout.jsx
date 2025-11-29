@@ -11,7 +11,7 @@ const getAuthHeaders = () => {
 
 const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5050';
 
-const Settings = () => {
+const Settings = ({ setLightTheme, setDarkTheme }) => {
   const [email, setEmail] = useState('');
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
