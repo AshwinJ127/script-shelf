@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <style>
+    body { width: 320px; padding: 15px; font-family: sans-serif; }
+    input, button, select, textarea { width: 100%; padding: 8px; margin-bottom: 10px; box-sizing: border-box; }
+    textarea { height: 100px; resize: vertical; font-family: monospace; }
+    button { background: #667eea; color: white; border: none; cursor: pointer; border-radius: 4px; }
+    button.secondary { background: #e2e8f0; color: #4a5568; }
+    .hidden { display: none; }
+    .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+    .header h3 { margin: 0; }
+    .icon-btn { width: auto; padding: 4px 8px; font-size: 12px; margin: 0; margin-left: 5px; }
+    .snippet-item { padding: 10px; border-bottom: 1px solid #eee; cursor: pointer; }
+    .snippet-item:hover { background: #f0f0f0; }
+    .snippet-title { font-weight: bold; font-size: 14px; }
+    .snippet-lang { font-size: 11px; color: #666; }
+    #error-msg, #create-error { color: red; font-size: 12px; margin-bottom: 10px; }
+  </style>
+</head>
+<body>
+  <div id="auth-view">
+    <h3>Sign In</h3>
+    <input type="email" id="email" placeholder="Email">
+    <input type="password" id="password" placeholder="Password">
+    <button id="login-btn">Login</button>
+    <div id="error-msg"></div>
+  </div>
+
+  <div id="main-view" class="hidden">
+    <div class="header">
+      <h3>My Library</h3>
+      <div>
+        <button id="new-btn" class="icon-btn" style="background: #48bb78;">+ New</button>
+        <button id="logout-btn" class="icon-btn" style="background: #e53e3e;">Logout</button>
+      </div>
+    </div>
+    <input type="text" id="search" placeholder="Search snippets...">
+    <div id="snippet-list">Loading...</div>
+  </div>
+
+  <div id="create-view" class="hidden">
+    <div class="header">
+      <h3>Create Snippet</h3>
+    </div>
+    <input type="text" id="new-title" placeholder="Title">
+    <select id="new-lang">
+      <option value="javascript">JavaScript</option>
+      <option value="python">Python</option>
+      <option value="sql">SQL</option>
+      <option value="html">HTML</option>
+      <option value="css">CSS</option>
+      <option value="text">Text</option>
+    </select>
+    <textarea id="new-code" placeholder="Paste your code here..."></textarea>
+    <div id="create-error"></div>
+    <button id="save-btn">Save Snippet</button>
+    <button id="cancel-btn" class="secondary">Cancel</button>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>
