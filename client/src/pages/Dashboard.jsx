@@ -215,6 +215,49 @@ function Dashboard({ navigateTo, navigateToScriptsWithLanguage, navigateToSnippe
           </ul>
         )}
       </div>
+      <div className="card">
+        <h3>Recently Favorited</h3>
+          {favoriteSnippets.length === 0 ? (
+            <p>No favorites yet.</p>
+          ) : (
+            <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+              {recentTwoFavorites.map((s) => (
+                <li
+                  key={s.id}
+                  onClick={() => navigateToSnippet && navigateToSnippet(s.id)}
+                  style={{
+                    padding: '0.75rem',
+                    borderBottom: '1px solid #e2e8f0',
+                    cursor: 'pointer',
+                    transition: 'background-color 0.2s',
+                    borderRadius: '4px',
+                    marginBottom: '0.25rem'
+                }}
+                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f7fafc'}
+                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+                >
+              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                <strong>{s.title}</strong>
+                <span style={{ color: '#718096', fontSize: '0.875rem' }}>
+                  {formatDate(s.created_at)}
+                </span>
+              </div>
+          <span style={{ color: '#718096', textTransform: 'capitalize' }}>
+            {s.language}
+          </span>
+        </li>
+          ))}
+    </ul>
+  )}
+
+  <button
+    style={{ marginTop: '1rem' }}
+    onClick={() => navigateToScriptsWithLanguage && navigateToScriptsWithLanguage('favorites')}
+  >
+    View All Favorites
+  </button>
+</div>
+
     </div>
   );
 }
