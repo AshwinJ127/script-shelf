@@ -37,15 +37,7 @@ function Scripts({ languageFilter, selectedSnippetId, theme = 'light' }) {
   const [successMessage, setSuccessMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [highlightedSnippetId, setHighlightedSnippetId] = useState(null);
-  const [favoriteSnippets, setFavoriteSnippets] = useState(() => {
-    try {
-      const stored = localStorage.getItem('favoriteSnippets');
-      return stored ? JSON.parse(stored) : [];
-    } catch (err) {
-      console.error('Failed to parse favorite snippets from storage:', err);
-      return [];
-    }
-  });
+  const [favoriteSnippets, setFavoriteSnippets] = useState([]);
 
   useEffect(() => {
     localStorage.setItem('favoriteSnippets', JSON.stringify(favoriteSnippets));
