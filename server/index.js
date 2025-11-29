@@ -220,7 +220,7 @@ app.put('/api/users/password', auth, async (req, res) => {
 });
 
 app.post('/api/snippets', auth, async (req, res) => {
-  const { title, code, language } = req.body;
+  const { title, code, language, folder_id } = req.body;
   const userId = req.user.id;
 
   if (!title || !code) {
@@ -229,8 +229,8 @@ app.post('/api/snippets', auth, async (req, res) => {
 
   try {
     const newSnippet = await pool.query(
-      'INSERT INTO snippets (user_id, title, code, language) VALUES ($1, $2, $3, $4) RETURNING *',
-      [userId, title, code, language]
+      'INSERT INTO snippets (user_id, title, code, language, folder_id) VALUES ($1, $2, $3, $4, $5) RETURNING *',
+      [userId, title, code, language, folder_id]
     );
     res.status(201).json(newSnippet.rows[0]);
   } catch (err) {
@@ -242,7 +242,7 @@ app.post('/api/snippets', auth, async (req, res) => {
 app.get('/api/snippets', auth, async (req, res) => {
   try {
     const snippets = await pool.query(
-      'SELECT * FROM snippets WHERE user_id = $1 ORDER BY created_at DESC',
+      'SELECT * FROM snippets WHERE user_id = $1 ORDER BY is_favorited DESC, created_at DESC',
       [req.user.id]
     );
     res.json(snippets.rows);
@@ -253,23 +253,41 @@ app.get('/api/snippets', auth, async (req, res) => {
 });
 
 app.put('/api/snippets/:id', auth, async (req, res) => {
-  const { title, code, language } = req.body;
+  const { title, code, language, is_favorited, folder_id } = req.body;
   const snippetId = req.params.id;
   const userId = req.user.id;
 
+  const client = await pool.connect();
+
   try {
-    const updatedSnippet = await pool.query(
-      'UPDATE snippets SET title = $1, code = $2, language = $3 WHERE id = $4 AND user_id = $5 RETURNING *',
-      [title, code, language, snippetId, userId]
+    await client.query('BEGIN');
+
+    await client.query(
+      `INSERT INTO snippet_versions (snippet_id, title, code, language)
+       SELECT id, title, code, language FROM snippets WHERE id = $1 AND user_id = $2`,
+      [snippetId, userId]
     );
+
+    const updatedSnippet = await client.query(
+      `UPDATE snippets 
+       SET title = $1, code = $2, language = $3, is_favorited = $4, folder_id = $5 
+       WHERE id = $6 AND user_id = $7 
+       RETURNING *`,
+      [title, code, language, is_favorited, folder_id, snippetId, userId]
+    );
+
+    await client.query('COMMIT');
 
     if (updatedSnippet.rows.length === 0) {
       return res.status(404).json({ msg: 'Snippet not found or user not authorized' });
     }
     res.json(updatedSnippet.rows[0]);
   } catch (err) {
+    await client.query('ROLLBACK');
     console.error(err.message);
     res.status(500).send('Server error');
+  } finally {
+    client.release();
   }
 });
 
