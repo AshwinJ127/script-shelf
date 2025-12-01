@@ -11,7 +11,7 @@ const getAuthHeaders = () => {
 
 const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5050';
 
-const Settings = () => {
+const Settings = ({ theme, onThemeChange }) => {
   const [email, setEmail] = useState('');
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
@@ -105,16 +105,16 @@ const Settings = () => {
   };
 
   return (
-    <div className="dashboard-content">
-      <div className="card" style={{ gridColumn: '1 / -1' }}>
-        <h2 style={{ marginBottom: '0.5rem' }}>Account Preferences</h2>
-        <p style={{ color: '#718096', marginBottom: '1.5rem' }}>
-          Manage how ScriptShelf behaves for your account.
-        </p>
+  <div className="dashboard-content">
+    <div className="card" style={{ gridColumn: '1 / -1' }}>
+      <h2 style={{ marginBottom: '0.5rem' }}>Account Preferences</h2>
+      <p style={{ color: '#718096', marginBottom: '1.5rem' }}>
+        Manage how ScriptShelf behaves for your account.
+      </p>
         
         {/* Update Profile Section */}
         <div style={{ marginBottom: '2rem', padding: '1.5rem', backgroundColor: '#f7fafc', borderRadius: '8px' }}>
-          <h3 style={{ marginBottom: '1rem' }}>Update Profile</h3>
+          <h3 style={{ marginBottom: '1rem', color: '#111827' }}>Update Profile</h3>
           {!showProfileForm ? (
             <button 
               onClick={() => setShowProfileForm(true)}
@@ -133,7 +133,7 @@ const Settings = () => {
           ) : (
             <form onSubmit={handleUpdateProfile}>
               <div style={{ marginBottom: '1rem' }}>
-                <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 500 }}>
+                <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 500, color: '#111827' }}>
                   Email
                 </label>
                 <input
@@ -206,7 +206,7 @@ const Settings = () => {
 
         {/* Change Password Section */}
         <div style={{ marginBottom: '2rem', padding: '1.5rem', backgroundColor: '#f7fafc', borderRadius: '8px' }}>
-          <h3 style={{ marginBottom: '1rem' }}>Change Password</h3>
+          <h3 style={{ marginBottom: '1rem', color: '#111827' }}>Change Password</h3>
           {!showPasswordForm ? (
             <button 
               onClick={() => setShowPasswordForm(true)}
@@ -225,7 +225,7 @@ const Settings = () => {
           ) : (
             <form onSubmit={handleChangePassword}>
               <div style={{ marginBottom: '1rem' }}>
-                <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 500 }}>
+                <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 500, color: '#111827' }}>
                   Current Password
                 </label>
                 <input
@@ -244,7 +244,7 @@ const Settings = () => {
                 />
               </div>
               <div style={{ marginBottom: '1rem' }}>
-                <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 500 }}>
+                <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 500, color: '#111827' }}>
                   New Password
                 </label>
                 <input
@@ -264,7 +264,7 @@ const Settings = () => {
                 />
               </div>
               <div style={{ marginBottom: '1rem' }}>
-                <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 500 }}>
+                <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 500, color: '#111827' }}>
                   Confirm New Password
                 </label>
                 <input
@@ -336,8 +336,8 @@ const Settings = () => {
               </div>
             </form>
           )}
-        </div>
       </div>
+    </div>
 
     <div className="card">
       <h3>Snippet Management</h3>
@@ -353,8 +353,32 @@ const Settings = () => {
       <h3>Appearance</h3>
       <p style={{ color: '#718096', marginBottom: '1rem' }}>Switch between layout or theme presets.</p>
       <div style={{ display: 'flex', gap: '1rem' }}>
-        <button style={{ flex: 1 }}>Light Theme</button>
-        <button style={{ flex: 1 }}>Dark Theme</button>
+          <button
+            type="button"
+            onClick={() => onThemeChange('light')}
+            style={{
+              flex: 1,
+              backgroundColor: theme === 'light' ? '#667eea' : 'var(--bg-secondary)',
+              color: theme === 'light' ? '#ffffff' : 'var(--text-secondary)',
+              border: theme === 'light' ? 'none' : '1px solid var(--border-color)',
+              boxShadow: theme === 'light' ? '0 10px 25px rgba(94, 109, 255, 0.25)' : 'none'
+            }}
+          >
+            Light Theme
+          </button>
+          <button
+            type="button"
+            onClick={() => onThemeChange('dark')}
+            style={{
+              flex: 1,
+              backgroundColor: theme === 'dark' ? '#1f2937' : 'var(--bg-secondary)',
+              color: theme === 'dark' ? '#f9fafb' : 'var(--text-secondary)',
+              border: theme === 'dark' ? 'none' : '1px solid var(--border-color)',
+              boxShadow: theme === 'dark' ? '0 10px 30px rgba(15,23,42,0.6)' : 'none'
+            }}
+          >
+            Dark Theme
+          </button>
       </div>
     </div>
 
@@ -368,17 +392,17 @@ const Settings = () => {
       </div>
     </div>
   </div>
-  );
+);
 };
 
 const Help = () => <div className="card"><h1>Help & Support</h1><p>Help documentation will go here.</p></div>;
 
-function ActivePage({ activeItem, setActiveItem, languageFilter, navigateToScriptsWithLanguage, selectedSnippetId, navigateToSnippet }) {
+function ActivePage({ activeItem, setActiveItem, languageFilter, navigateToScriptsWithLanguage, selectedSnippetId, navigateToSnippet, theme, onThemeChange }) {
   switch (activeItem) {
     case 'scripts':
       return <Scripts languageFilter={languageFilter} selectedSnippetId={selectedSnippetId} />;
     case 'settings':
-      return <Settings />;
+      return <Settings theme={theme} onThemeChange={onThemeChange} />;
     case 'help':
       return <Help />;
     case 'dashboard':
@@ -391,6 +415,21 @@ function MainLayout({ onLogout }) {
   const [activeItem, setActiveItem] = useState('dashboard');
   const [languageFilter, setLanguageFilter] = useState(null);
   const [selectedSnippetId, setSelectedSnippetId] = useState(null);
+  const [theme, setTheme] = useState(() => {
+    if (typeof window === 'undefined') return 'light';
+    return localStorage.getItem('theme') || 'light';
+  });
+
+  useEffect(() => {
+    // Persist theme
+    localStorage.setItem('theme', theme);
+
+    // Apply theme class to body for global background + variables
+    if (typeof document !== 'undefined') {
+      document.body.classList.remove('light-theme', 'dark-theme');
+      document.body.classList.add(`${theme}-theme`);
+    }
+  }, [theme]);
 
   const getActivePageLabel = () => {
     const menuItems = [
@@ -425,7 +464,7 @@ function MainLayout({ onLogout }) {
 
   return (
     <div
-      className="app-layout"
+      className={`app-layout ${theme}-theme`}
       style={{ display: 'flex', height: '100vh', width: '100vw' }}
     >
       {/* Pass the onLogout prop down to the Sidebar */}
@@ -446,6 +485,8 @@ function MainLayout({ onLogout }) {
           navigateToScriptsWithLanguage={handleNavigateToScriptsWithLanguage}
           selectedSnippetId={selectedSnippetId}
           navigateToSnippet={handleNavigateToSnippet}
+          theme={theme}
+          onThemeChange={setTheme}
         />
       </div>
     </div>
