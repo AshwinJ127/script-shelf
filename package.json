@@ -133,6 +133,7 @@
     "regexp-match-indices": "^1.0.2",
     "regexp-tree": "^0.1.27",
     "repeat-string": "^1.6.1",
+    "requirements": "^3.0.0",
     "safe-buffer": "^5.1.2",
     "seed-random": "^2.2.0",
     "semver": "^7.7.2",

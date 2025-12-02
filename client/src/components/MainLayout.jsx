@@ -395,7 +395,38 @@ const Settings = ({ theme, onThemeChange }) => {
 );
 };
 
-const Help = () => <div className="card"><h1>Help & Support</h1><p>Help documentation will go here.</p></div>;
+const Help = () => (
+  <div className="card">
+    <h1>Help & Support</h1>
+    <p>Help documentation will go here.</p>
+    
+    <div style={{ marginTop: '2rem', padding: '1.5rem', backgroundColor: '#f7fafc', borderRadius: '8px' }}>
+      <h3 style={{ marginBottom: '1rem', color: '#111827' }}>Contact Us</h3>
+      <p style={{ marginBottom: '1rem', color: '#4a5568' }}>
+        Need help? Reach out to us via email:
+      </p>
+      <a 
+        href="https://mail.google.com/mail/?view=cm&fs=1&to=scriptshelf123@gmail.com"
+        target="_blank"
+        rel="noopener noreferrer"
+        style={{
+          display: 'inline-block',
+          padding: '0.75rem 1.5rem',
+          backgroundColor: '#667eea',
+          color: 'white',
+          textDecoration: 'none',
+          borderRadius: '8px',
+          fontWeight: 500,
+          transition: 'background-color 0.2s'
+        }}
+        onMouseOver={(e) => e.target.style.backgroundColor = '#5568d3'}
+        onMouseOut={(e) => e.target.style.backgroundColor = '#667eea'}
+      >
+        scriptshelf123@gmail.com
+      </a>
+    </div>
+  </div>
+);
 
 function ActivePage({ activeItem, setActiveItem, languageFilter, navigateToScriptsWithLanguage, selectedSnippetId, navigateToSnippet, theme, onThemeChange }) {
   switch (activeItem) {

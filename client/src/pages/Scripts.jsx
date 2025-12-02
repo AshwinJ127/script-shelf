@@ -143,6 +143,9 @@ function Scripts({ languageFilter, selectedSnippetId }) {
       };
       
       if (editingSnippet) {
+        // Preserve favorite status and folder_id when editing
+        snippetData.is_favorited = editingSnippet.is_favorited || false;
+        snippetData.folder_id = editingSnippet.folder_id || null;
         await axios.put(`${apiUrl}/api/snippets/${editingSnippet.id}`, snippetData, config);
         setSuccessMessage('Snippet updated successfully!');
       } else {
@@ -231,6 +234,32 @@ function Scripts({ languageFilter, selectedSnippetId }) {
         alert('Failed to copy to clipboard. Please select and copy manually.');
       }
       document.body.removeChild(textArea);
+    }
+  };
+
+  const handleToggleFavorite = async (snippet) => {
+    try {
+      const newFavoriteStatus = !snippet.is_favorited;
+      const snippetData = {
+        title: snippet.title,
+        code: snippet.code,
+        language: snippet.language,
+        is_favorited: newFavoriteStatus,
+        folder_id: snippet.folder_id || null
+      };
+
+      const config = {
+        ...getAuthHeaders(),
+        timeout: 10000
+      };
+
+      await axios.put(`${apiUrl}/api/snippets/${snippet.id}`, snippetData, config);
+      // Refresh the list to show updated favorite status
+      await fetchSnippets();
+    } catch (err) {
+      console.error('Error toggling favorite:', err);
+      setError('Failed to update favorite status. Please try again.');
+      setTimeout(() => setError(''), 3000);
     }
   };
 
@@ -392,8 +421,25 @@ function Scripts({ languageFilter, selectedSnippetId }) {
                 </div>
                 <div>
                   <button 
+                    onClick={() => handleToggleFavorite(snippet)} 
+                    style={{ 
+                      padding: '5px 10px',
+                      backgroundColor: snippet.is_favorited ? '#ffa500' : '#e2e8f0',
+                      color: 'white',
+                      border: 'none',
+                      borderRadius: '4px',
+                      cursor: 'pointer',
+                      transition: 'background-color 0.2s',
+                      fontWeight: snippet.is_favorited ? 600 : 400
+                    }}
+                    title={snippet.is_favorited ? 'Remove from favorites' : 'Add to favorites'}
+                  >
+                    {snippet.is_favorited ? 'Favorited' : 'Favorite'}
+                  </button>
+                  <button 
                     onClick={() => handleCopy(snippet)} 
                     style={{ 
+                      marginLeft: '0.5rem',
                       padding: '5px 10px',
                       backgroundColor: copiedId === snippet.id ? '#4caf50' : '#6a5acd',
                       color: 'white',

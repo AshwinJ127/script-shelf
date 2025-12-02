@@ -8,7 +8,7 @@ const getAuthHeaders = () => {
   return { headers: { 'x-auth-token': token } };
 };
 
-const apiUrl = import.meta.env.VITE_API_URL;
+const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5050';
 
 // Map language names to syntax highlighter language identifiers
 const mapLanguageToSyntaxHighlighter = (lang) => {
