@@ -95,7 +95,6 @@
     "lodash.sortby": "^4.7.0",
     "lower-case": "^2.0.2",
     "lru-cache": "^11.2.2",
-    "luxon": "^3.7.1",
     "math-intrinsics": "^1.1.0",
     "mime": "^3.0.0",
     "mime-db": "^1.52.0",
