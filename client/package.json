@@ -12,9 +12,11 @@
   "dependencies": {
     "@types/react-syntax-highlighter": "^15.5.13",
     "axios": "^1.13.0",
+    "lucide-react": "^0.555.0",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
     "react-icons": "^5.5.0",
+    "react-router-dom": "^7.10.0",
     "react-syntax-highlighter": "^16.1.0",
     "requirements": "^2.0.2"
   },
