@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
-import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
+// Removed react-syntax-highlighter to prevent build errors
 import { 
   Star, 
   Folder, 
@@ -21,36 +20,25 @@ const getAuthHeaders = () => {
   return { headers: { 'x-auth-token': token } };
 };
 
-const apiUrl = import.meta.env.VITE_API_URL || "https://script-shelf.onrender.com";
+const apiUrl = import.meta.env?.VITE_API_URL || "https://script-shelf.onrender.com";
 
 const mapLanguageToSyntaxHighlighter = (lang) => {
-  const languageMap = {
-    'javascript': 'javascript',
-    'python': 'python',
-    'sql': 'sql',
-    'css': 'css',
-    'html': 'html',
-    'text': 'plaintext'
-  };
-  return languageMap[lang?.toLowerCase()] || 'plaintext';
+  return lang?.toLowerCase() || 'plaintext';
 };
 
 function Scripts() {
-  // Data State
   const [snippets, setSnippets] = useState([]);
   const [folders, setFolders] = useState([]);
   const [versions, setVersions] = useState([]);
   
-  // UI State
-  const [selectedFolderId, setSelectedFolderId] = useState(null); // null = All Snippets
-  const [view, setView] = useState('list'); // 'list' | 'form'
+  const [selectedFolderId, setSelectedFolderId] = useState(null);
+  const [view, setView] = useState('list');
   const [isLoading, setIsLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [showHistoryModal, setShowHistoryModal] = useState(false);
   const [newFolderName, setNewFolderName] = useState('');
   const [copiedId, setCopiedId] = useState(null);
 
-  // Form State
   const [formData, setFormData] = useState({
     title: '',
     code: '',
@@ -143,7 +131,6 @@ function Scripts() {
 
   const toggleFavorite = async (snippet) => {
     try {
-      // Optimistic update
       const updatedSnippets = snippets.map(s => 
         s.id === snippet.id ? { ...s, is_favorited: !s.is_favorited } : s
       );
@@ -155,7 +142,6 @@ function Scripts() {
       }, getAuthHeaders());
     } catch (err) {
       console.error('Favorite toggle failed', err);
-      // Revert on fail
       fetchInitialData();
     }
   };
@@ -207,34 +193,22 @@ function Scripts() {
   });
 
   return (
-    <div style={{ display: 'flex', height: 'calc(100vh - 64px)', overflow: 'hidden' }}>
+    // Container that fits within main-content but handles its own 2-column layout
+    <div style={{ display: 'flex', height: 'calc(100vh - 100px)', overflow: 'hidden' }}>
       
-      {/* --- LEFT SIDEBAR (FOLDERS) --- */}
+      {/* --- FOLDER SIDEBAR --- */}
       <div style={{ 
-        width: '260px', 
-        borderRight: '1px solid #e2e8f0', 
-        backgroundColor: '#f8fafc',
+        width: '280px', 
+        borderRight: '1px solid var(--border-color)', 
         display: 'flex',
         flexDirection: 'column',
-        flexShrink: 0
+        flexShrink: 0,
+        backgroundColor: 'rgba(255,255,255,0.4)'
       }}>
-        <div style={{ padding: '1.5rem', borderBottom: '1px solid #e2e8f0' }}>
+        <div style={{ padding: '1.5rem', borderBottom: '1px solid var(--border-color)' }}>
           <button 
             onClick={() => { setView('form'); resetForm(); }}
-            style={{ 
-              width: '100%', 
-              padding: '0.75rem', 
-              background: '#6366f1', 
-              color: 'white', 
-              border: 'none', 
-              borderRadius: '6px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: '8px',
-              cursor: 'pointer',
-              fontWeight: 500
-            }}
+            style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
           >
             <Plus size={18} /> New Snippet
           </button>
@@ -244,16 +218,17 @@ function Scripts() {
           <div 
             onClick={() => setSelectedFolderId(null)}
             style={{ 
-              padding: '0.75rem 1.5rem', 
-              cursor: 'pointer',
-              background: selectedFolderId === null ? '#e0e7ff' : 'transparent',
-              color: selectedFolderId === null ? '#4338ca' : '#64748b',
-              fontWeight: selectedFolderId === null ? 600 : 400,
-              display: 'flex',
-              alignItems: 'center',
-              gap: '10px'
-            }}
-          >
+                cursor: 'pointer', 
+                padding: '0.75rem 1.5rem', 
+                display: 'flex', 
+                alignItems: 'center', 
+                gap: '10px',
+                transition: 'all 0.2s ease',
+                color: selectedFolderId === null ? 'var(--text-accent)' : 'var(--text-secondary)',
+                background: selectedFolderId === null ? 'rgba(90, 103, 216, 0.1)' : 'transparent',
+                borderRight: selectedFolderId === null ? '3px solid var(--text-accent)' : '3px solid transparent',
+                fontWeight: selectedFolderId === null ? 600 : 500
+              }}          >
             <Folder size={18} /> All Snippets
           </div>
 
@@ -262,42 +237,44 @@ function Scripts() {
               key={folder.id}
               onClick={() => setSelectedFolderId(folder.id)}
               style={{ 
-                padding: '0.75rem 1.5rem', 
-                cursor: 'pointer',
-                background: selectedFolderId === folder.id ? '#e0e7ff' : 'transparent',
-                color: selectedFolderId === folder.id ? '#4338ca' : '#64748b',
-                fontWeight: selectedFolderId === folder.id ? 600 : 400,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                group: 'folder-item'
-              }}
-            >
+                    cursor: 'pointer', 
+                    padding: '0.75rem 1.5rem', 
+                    display: 'flex', 
+                    alignItems: 'center', 
+                    justifyContent: 'space-between',
+                    transition: 'all 0.2s ease',
+                    // Logic for specific folders
+                    color: selectedFolderId === folder.id ? 'var(--text-accent)' : 'var(--text-secondary)',
+                    background: selectedFolderId === folder.id ? 'rgba(90, 103, 216, 0.1)' : 'transparent',
+                    borderRight: selectedFolderId === folder.id ? '3px solid var(--text-accent)' : '3px solid transparent',
+                    fontWeight: selectedFolderId === folder.id ? 600 : 500
+                  }}            >
               <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                 <Folder size={18} /> {folder.name}
               </div>
               <Trash2 
                 size={14} 
                 onClick={(e) => handleDeleteFolder(folder.id, e)}
-                style={{ opacity: 0.5, cursor: 'pointer' }}
-                className="delete-icon" 
+                style={{ opacity: 0.6, cursor: 'pointer' }}
               />
             </div>
           ))}
         </div>
 
-        <div style={{ padding: '1rem', borderTop: '1px solid #e2e8f0' }}>
+        {/* New Folder Input Area */}
+        <div style={{ padding: '1.25rem', borderTop: '1px solid var(--border-color)' }}>
           <form onSubmit={handleCreateFolder} style={{ display: 'flex', gap: '8px' }}>
             <input 
+              type="text"
               value={newFolderName}
               onChange={e => setNewFolderName(e.target.value)}
               placeholder="New Folder"
-              style={{ flex: 1, padding: '6px', borderRadius: '4px', border: '1px solid #cbd5e1' }}
+              // No inline styles needed; App.css input[type="text"] handles it
             />
             <button 
               type="submit"
               disabled={!newFolderName}
-              style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#6366f1' }}
+              style={{ padding: '0.75rem', width: 'auto' }}
             >
               <Plus size={20} />
             </button>
@@ -305,261 +282,204 @@ function Scripts() {
         </div>
       </div>
 
-      {/* --- MAIN CONTENT AREA --- */}
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', backgroundColor: '#fff' }}>
+      {/* --- SNIPPET LIST / FORM AREA --- */}
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
         
         {view === 'list' ? (
           <>
-            {/* List Header */}
+            {/* Search Header */}
             <div style={{ 
-              padding: '1.5rem', 
-              borderBottom: '1px solid #e2e8f0', 
+              padding: '1.5rem 2rem', 
+              borderBottom: '1px solid var(--border-color)', 
               display: 'flex', 
               alignItems: 'center', 
-              gap: '1rem' 
+              gap: '1rem',
+              background: 'rgba(255,255,255,0.6)',
+              backdropFilter: 'blur(8px)'
             }}>
               <div style={{ position: 'relative', flex: 1, maxWidth: '400px' }}>
-                <Search size={18} style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', color: '#94a3b8' }} />
+                <Search size={18} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-secondary)' }} />
                 <input 
+                  type="text"
                   value={searchTerm}
                   onChange={e => setSearchTerm(e.target.value)}
                   placeholder="Search snippets..."
-                  style={{ 
-                    width: '100%', 
-                    padding: '0.6rem 0.6rem 0.6rem 2.2rem', 
-                    borderRadius: '6px', 
-                    border: '1px solid #cbd5e1',
-                    fontSize: '0.95rem'
-                  }}
+                  style={{ paddingLeft: '2.5rem' }} // Only inline style needed for icon spacing
                 />
               </div>
-              <div style={{ fontSize: '0.9rem', color: '#64748b' }}>
+              <div style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>
                 {filteredSnippets.length} snippets
               </div>
             </div>
 
             {/* List Body */}
-            <div style={{ flex: 1, overflowY: 'auto', padding: '1.5rem', background: '#f8fafc' }}>
-              {isLoading ? <div style={{textAlign: 'center', marginTop: '2rem', color: '#64748b'}}>Loading...</div> : 
-               filteredSnippets.length === 0 ? <div style={{textAlign: 'center', marginTop: '2rem', color: '#64748b'}}>No snippets found.</div> :
-               
-               filteredSnippets.map(snippet => (
-                <div key={snippet.id} style={{ 
-                  background: 'white', 
-                  borderRadius: '8px', 
-                  border: '1px solid #e2e8f0', 
-                  marginBottom: '1.5rem',
-                  overflow: 'hidden',
-                  boxShadow: '0 1px 3px rgba(0,0,0,0.05)'
-                }}>
-                  <div style={{ 
-                    padding: '1rem', 
-                    borderBottom: '1px solid #f1f5f9', 
-                    display: 'flex', 
-                    justifyContent: 'space-between', 
-                    alignItems: 'center' 
-                  }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                      <button 
-                        onClick={() => toggleFavorite(snippet)}
-                        style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
-                      >
-                        <Star 
-                          size={20} 
-                          fill={snippet.is_favorited ? "#fbbf24" : "none"} 
-                          color={snippet.is_favorited ? "#fbbf24" : "#94a3b8"} 
-                        />
-                      </button>
-                      <h3 style={{ margin: 0, fontSize: '1.1rem', color: '#1e293b' }}>{snippet.title}</h3>
-                      <span style={{ 
-                        fontSize: '0.75rem', 
-                        padding: '2px 8px', 
-                        background: '#f1f5f9', 
-                        borderRadius: '12px', 
-                        color: '#64748b',
-                        textTransform: 'uppercase',
-                        fontWeight: 600
-                      }}>
-                        {snippet.language}
-                      </span>
+            <div style={{ flex: 1, overflowY: 'auto', padding: '2rem' }}>
+              {isLoading ? (
+                <div style={{textAlign: 'center', color: 'var(--text-secondary)'}}>Loading...</div>
+              ) : filteredSnippets.length === 0 ? (
+                <div style={{textAlign: 'center', color: 'var(--text-secondary)'}}>No snippets found.</div>
+              ) : (
+                filteredSnippets.map(snippet => (
+                  <div key={snippet.id} className="snippet-item">
+                    <div className="snippet-item-header">
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                        <button 
+                          onClick={() => toggleFavorite(snippet)}
+                          style={{ background: 'transparent', boxShadow: 'none', padding: 0, minWidth: 'auto' }}
+                        >
+                          <Star 
+                            size={20} 
+                            fill={snippet.is_favorited ? "#fbbf24" : "none"} 
+                            color={snippet.is_favorited ? "#fbbf24" : "var(--text-secondary)"} 
+                          />
+                        </button>
+                        <h4 style={{ fontSize: '1.1rem', fontWeight: 600 }}>{snippet.title}</h4>
+                        <span style={{ 
+                          fontSize: '0.75rem', 
+                          padding: '2px 10px', 
+                          background: 'rgba(90, 103, 216, 0.1)', 
+                          borderRadius: '12px', 
+                          color: 'var(--text-accent)',
+                          textTransform: 'uppercase',
+                          fontWeight: 600,
+                          letterSpacing: '0.05em'
+                        }}>
+                          {snippet.language}
+                        </span>
+                      </div>
+                      
+                      <div style={{ display: 'flex', gap: '8px' }}>
+                        <button type="button" onClick={() => fetchHistory(snippet.id)} title="History"><Clock size={16} /></button>
+                        <button type="button" onClick={() => handleCopy(snippet.code, snippet.id)} title="Copy">
+                          {copiedId === snippet.id ? <span style={{fontSize: '0.8rem'}}>Copied</span> : <Copy size={16} />}
+                        </button>
+                        <button type="button" onClick={() => openEdit(snippet)} title="Edit"><Edit2 size={16} /></button>
+                        <button type="button" onClick={() => handleDeleteSnippet(snippet.id)} title="Delete" style={{color: '#ef4444', borderColor: '#fee2e2', background: '#fef2f2'}}><Trash2 size={16} /></button>
+                      </div>
                     </div>
-                    
-                    <div style={{ display: 'flex', gap: '8px' }}>
-                      <button 
-                        onClick={() => fetchHistory(snippet.id)}
-                        title="View History"
-                        style={{ padding: '6px', background: 'none', border: 'none', cursor: 'pointer', color: '#64748b' }}
-                      >
-                        <Clock size={18} />
-                      </button>
-                      <button 
-                        onClick={() => handleCopy(snippet.code, snippet.id)}
-                        title="Copy Code"
-                        style={{ padding: '6px', background: 'none', border: 'none', cursor: 'pointer', color: copiedId === snippet.id ? '#10b981' : '#64748b' }}
-                      >
-                        <Copy size={18} />
-                      </button>
-                      <button 
-                        onClick={() => openEdit(snippet)}
-                        title="Edit Snippet"
-                        style={{ padding: '6px', background: 'none', border: 'none', cursor: 'pointer', color: '#6366f1' }}
-                      >
-                        <Edit2 size={18} />
-                      </button>
-                      <button 
-                        onClick={() => handleDeleteSnippet(snippet.id)}
-                        title="Delete Snippet"
-                        style={{ padding: '6px', background: 'none', border: 'none', cursor: 'pointer', color: '#ef4444' }}
-                      >
-                        <Trash2 size={18} />
-                      </button>
-                    </div>
-                  </div>
 
-                  <div style={{ maxHeight: '300px', overflow: 'auto' }}>
-                    <SyntaxHighlighter 
-                      language={mapLanguageToSyntaxHighlighter(snippet.language)} 
-                      style={vscDarkPlus}
-                      customStyle={{ margin: 0, borderRadius: 0, fontSize: '0.9rem' }}
-                    >
-                      {snippet.code}
-                    </SyntaxHighlighter>
+                    <pre>
+                      <code>{snippet.code}</code>
+                    </pre>
                   </div>
-                </div>
-              ))}
+                ))
+              )}
             </div>
           </>
         ) : (
           /* Form View */
-          <div style={{ padding: '2rem', maxWidth: '800px', margin: '0 auto', width: '100%' }}>
+          <div style={{ padding: '2rem', maxWidth: '900px', margin: '0 auto', width: '100%', overflowY: 'auto' }}>
             <button 
+              type="button"
               onClick={() => setView('list')}
-              style={{ 
-                background: 'none', 
-                border: 'none', 
-                display: 'flex', 
-                alignItems: 'center', 
-                gap: '5px', 
-                color: '#64748b', 
-                cursor: 'pointer',
-                marginBottom: '1rem',
-                fontSize: '0.9rem'
-              }}
+              style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '1.5rem', padding: '0.5rem 1rem' }}
             >
-              <ChevronLeft size={18} /> Back to List
+              <ChevronLeft size={18} /> Back
             </button>
             
-            <h2 style={{ marginBottom: '1.5rem', color: '#1e293b' }}>
-              {formData.id ? 'Edit Snippet' : 'Create New Snippet'}
-            </h2>
+            <div className="card">
+              <h3 style={{ marginBottom: '1.5rem' }}>
+                {formData.id ? 'Edit Snippet' : 'Create New Snippet'}
+              </h3>
 
-            <form onSubmit={handleSaveSnippet} style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-              <div style={{ display: 'flex', gap: '1rem' }}>
-                <div style={{ flex: 2 }}>
-                  <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 500, color: '#334155' }}>Title</label>
-                  <input 
-                    value={formData.title}
-                    onChange={e => setFormData({ ...formData, title: e.target.value })}
+              <form onSubmit={handleSaveSnippet}>
+                <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr', gap: '1.5rem', marginBottom: '1.5rem' }}>
+                  <div>
+                    <label>Title</label>
+                    <input 
+                      type="text"
+                      value={formData.title}
+                      onChange={e => setFormData({ ...formData, title: e.target.value })}
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label>Language</label>
+                    <select 
+                      value={formData.language}
+                      onChange={e => setFormData({ ...formData, language: e.target.value })}
+                    >
+                      <option value="javascript">JavaScript</option>
+                      <option value="python">Python</option>
+                      <option value="sql">SQL</option>
+                      <option value="html">HTML</option>
+                      <option value="css">CSS</option>
+                      <option value="text">Plain Text</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label>Folder</label>
+                    <select 
+                      value={formData.folder_id}
+                      onChange={e => setFormData({ ...formData, folder_id: e.target.value })}
+                    >
+                      <option value="">No Folder</option>
+                      {folders.map(f => (
+                        <option key={f.id} value={f.id}>{f.name}</option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+
+                <div style={{ marginBottom: '1.5rem' }}>
+                  <label>Code</label>
+                  <textarea 
+                    value={formData.code}
+                    onChange={e => setFormData({ ...formData, code: e.target.value })}
                     required
-                    style={{ width: '100%', padding: '0.6rem', borderRadius: '6px', border: '1px solid #cbd5e1' }}
+                    rows={12}
                   />
                 </div>
-                <div style={{ flex: 1 }}>
-                  <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 500, color: '#334155' }}>Language</label>
-                  <select 
-                    value={formData.language}
-                    onChange={e => setFormData({ ...formData, language: e.target.value })}
-                    style={{ width: '100%', padding: '0.6rem', borderRadius: '6px', border: '1px solid #cbd5e1' }}
-                  >
-                    <option value="javascript">JavaScript</option>
-                    <option value="python">Python</option>
-                    <option value="sql">SQL</option>
-                    <option value="html">HTML</option>
-                    <option value="css">CSS</option>
-                    <option value="text">Plain Text</option>
-                  </select>
-                </div>
-                <div style={{ flex: 1 }}>
-                  <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 500, color: '#334155' }}>Folder</label>
-                  <select 
-                    value={formData.folder_id}
-                    onChange={e => setFormData({ ...formData, folder_id: e.target.value })}
-                    style={{ width: '100%', padding: '0.6rem', borderRadius: '6px', border: '1px solid #cbd5e1' }}
-                  >
-                    <option value="">No Folder</option>
-                    {folders.map(f => (
-                      <option key={f.id} value={f.id}>{f.name}</option>
-                    ))}
-                  </select>
-                </div>
-              </div>
 
-              <div>
-                <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 500, color: '#334155' }}>Code</label>
-                <textarea 
-                  value={formData.code}
-                  onChange={e => setFormData({ ...formData, code: e.target.value })}
-                  required
-                  rows={15}
-                  style={{ width: '100%', padding: '0.6rem', borderRadius: '6px', border: '1px solid #cbd5e1', fontFamily: 'monospace' }}
-                />
-              </div>
-
-              <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
-                <button 
-                  type="submit"
-                  style={{ 
-                    padding: '0.75rem 1.5rem', 
-                    background: '#6366f1', 
-                    color: 'white', 
-                    border: 'none', 
-                    borderRadius: '6px', 
-                    cursor: 'pointer',
-                    display: 'flex', 
-                    alignItems: 'center', 
-                    gap: '8px',
-                    fontWeight: 500
-                  }}
-                >
-                  <Save size={18} /> Save Snippet
-                </button>
-                <label style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#475569', cursor: 'pointer' }}>
-                  <input 
-                    type="checkbox"
-                    checked={formData.is_favorited}
-                    onChange={e => setFormData({ ...formData, is_favorited: e.target.checked })}
-                  />
-                  Mark as Favorite
-                </label>
-              </div>
-            </form>
+                <div style={{ display: 'flex', gap: '1.5rem', alignItems: 'center' }}>
+                  <button type="submit" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <Save size={18} /> Save Snippet
+                  </button>
+                  
+                  <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', userSelect: 'none' }}>
+                    <input 
+                      type="checkbox"
+                      checked={formData.is_favorited}
+                      onChange={e => setFormData({ ...formData, is_favorited: e.target.checked })}
+                      style={{ width: 'auto' }}
+                    />
+                    Mark as Favorite
+                  </label>
+                </div>
+              </form>
+            </div>
           </div>
         )}
       </div>
 
-      {/* History Modal Overlay */}
+      {/* History Modal */}
       {showHistoryModal && (
         <div style={{
           position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
-          background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 50
+          background: 'rgba(15, 23, 42, 0.6)', backdropFilter: 'blur(4px)',
+          display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 100
         }}>
-          <div style={{ background: 'white', width: '500px', maxHeight: '80vh', borderRadius: '12px', padding: '1.5rem', display: 'flex', flexDirection: 'column' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1rem' }}>
+          <div className="card" style={{ width: '600px', maxHeight: '80vh', display: 'flex', flexDirection: 'column', padding: 0, overflow: 'hidden' }}>
+            <div style={{ padding: '1.5rem', borderBottom: '1px solid var(--border-color)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <h3 style={{ margin: 0 }}>Version History</h3>
-              <button onClick={() => setShowHistoryModal(false)} style={{ border: 'none', background: 'none', cursor: 'pointer' }}><X /></button>
+              <button type="button" onClick={() => setShowHistoryModal(false)} style={{ border: 'none', background: 'transparent', boxShadow: 'none', padding: '4px' }}>
+                <X size={20} color="var(--text-primary)" />
+              </button>
             </div>
-            <div style={{ overflowY: 'auto' }}>
+            <div style={{ overflowY: 'auto', padding: '1.5rem' }}>
               {versions.length === 0 ? (
-                <p style={{ color: '#64748b' }}>No previous versions found.</p>
+                <p>No previous versions found.</p>
               ) : (
                 versions.map((v, i) => (
-                  <div key={v.id} style={{ padding: '1rem', borderBottom: '1px solid #e2e8f0' }}>
-                    <div style={{ fontWeight: 600, fontSize: '0.9rem' }}>Version {versions.length - i}</div>
-                    <div style={{ fontSize: '0.8rem', color: '#64748b', marginBottom: '0.5rem' }}>
-                      {new Date(v.edited_at).toLocaleString()}
+                  <div key={v.id} style={{ paddingBottom: '1.5rem', marginBottom: '1.5rem', borderBottom: '1px solid var(--border-color)' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
+                      <span style={{ fontWeight: 600 }}>Version {versions.length - i}</span>
+                      <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
+                        {new Date(v.edited_at).toLocaleString()}
+                      </span>
                     </div>
-                    <pre style={{ background: '#f8fafc', padding: '0.5rem', borderRadius: '4px', fontSize: '0.8rem', overflowX: 'auto' }}>
-                      {v.code.substring(0, 100)}...
+                    <pre style={{ maxHeight: '150px', overflow: 'hidden', opacity: 0.8 }}>
+                      <code>{v.code}</code>
                     </pre>
                   </div>
                 ))
