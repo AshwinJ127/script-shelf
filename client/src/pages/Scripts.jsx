@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-// Removed react-syntax-highlighter to prevent build errors
+import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
+import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import { 
   Star, 
   Folder, 
@@ -23,7 +24,15 @@ const getAuthHeaders = () => {
 const apiUrl = import.meta.env.VITE_API_URL;
 
 const mapLanguageToSyntaxHighlighter = (lang) => {
-  return lang?.toLowerCase() || 'plaintext';
+  const languageMap = {
+    'javascript': 'javascript',
+    'python': 'python',
+    'sql': 'sql',
+    'css': 'css',
+    'html': 'html',
+    'text': 'plaintext'
+  };
+  return languageMap[lang?.toLowerCase()] || 'plaintext';
 };
 
 function Scripts() {
@@ -36,6 +45,7 @@ function Scripts() {
   const [isLoading, setIsLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [showHistoryModal, setShowHistoryModal] = useState(false);
+  const [selectedSnippetForHistory, setSelectedSnippetForHistory] = useState(null);
   const [newFolderName, setNewFolderName] = useState('');
   const [copiedId, setCopiedId] = useState(null);
 
@@ -148,6 +158,8 @@ function Scripts() {
 
   const fetchHistory = async (id) => {
     try {
+      const snippet = snippets.find(s => s.id === id);
+      setSelectedSnippetForHistory(snippet);
       const res = await axios.get(`${apiUrl}/api/snippets/${id}/versions`, getAuthHeaders());
       setVersions(res.data);
       setShowHistoryModal(true);
@@ -357,9 +369,21 @@ function Scripts() {
                       </div>
                     </div>
 
-                    <pre>
-                      <code>{snippet.code}</code>
-                    </pre>
+                    <SyntaxHighlighter
+                      language={mapLanguageToSyntaxHighlighter(snippet.language)}
+                      style={vscDarkPlus}
+                      customStyle={{
+                        margin: 0,
+                        padding: '1rem',
+                        borderRadius: '0',
+                        fontSize: '0.85rem',
+                        lineHeight: '1.4'
+                      }}
+                      showLineNumbers={false}
+                      PreTag="div"
+                    >
+                      {snippet.code}
+                    </SyntaxHighlighter>
                   </div>
                 ))
               )}
@@ -477,9 +501,24 @@ function Scripts() {
                         {new Date(v.edited_at).toLocaleString()}
                       </span>
                     </div>
-                    <pre style={{ maxHeight: '150px', overflow: 'hidden', opacity: 0.8 }}>
-                      <code>{v.code}</code>
-                    </pre>
+                    <SyntaxHighlighter
+                      language={mapLanguageToSyntaxHighlighter(selectedSnippetForHistory?.language || 'plaintext')}
+                      style={vscDarkPlus}
+                      customStyle={{
+                        margin: 0,
+                        padding: '1rem',
+                        borderRadius: '0',
+                        fontSize: '0.85rem',
+                        lineHeight: '1.4',
+                        maxHeight: '150px',
+                        overflow: 'hidden',
+                        opacity: 0.8
+                      }}
+                      showLineNumbers={false}
+                      PreTag="div"
+                    >
+                      {v.code}
+                    </SyntaxHighlighter>
                   </div>
                 ))
               )}
