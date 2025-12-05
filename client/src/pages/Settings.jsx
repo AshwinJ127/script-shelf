@@ -323,16 +323,6 @@ function Settings({ theme, onThemeChange }) {
       </div>
 
       <div className="card">
-        <h3>Snippet Management</h3>
-        <p style={{ color: '#718096', marginBottom: '1rem' }}>Quick actions for your snippet library.</p>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-          <button>Export Snippets</button>
-          <button>Import Snippets</button>
-          <button>Clear Drafts</button>
-        </div>
-      </div>
-
-      <div className="card">
         <h3>Appearance</h3>
         <p style={{ color: '#718096', marginBottom: '1rem' }}>Switch between layout or theme presets.</p>
         <div style={{ display: 'flex', gap: '1rem' }}>
@@ -365,15 +355,6 @@ function Settings({ theme, onThemeChange }) {
         </div>
       </div>
 
-      <div className="card" style={{ gridColumn: '1 / -1' }}>
-        <h3>Notifications</h3>
-        <p style={{ color: '#718096', marginBottom: '1rem' }}>Choose events you want to be notified about.</p>
-        <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
-          <button style={{ flex: '1 1 200px' }}>Snippet Reminders</button>
-          <button style={{ flex: '1 1 200px' }}>Shared Updates</button>
-          <button style={{ flex: '1 1 200px' }}>Weekly Summary</button>
-        </div>
-      </div>
     </div>
   );
 }
