@@ -104,7 +104,7 @@ function Settings({ theme, onThemeChange }) {
               onClick={() => setShowProfileForm(true)}
               style={{ 
                 padding: '0.75rem 1.5rem',
-                backgroundColor: '#667eea',
+                backgroundColor: '#6b7280',
                 color: 'white',
                 border: 'none',
                 borderRadius: '8px',
@@ -153,7 +153,7 @@ function Settings({ theme, onThemeChange }) {
                   disabled={isLoadingProfile}
                   style={{
                     padding: '0.75rem 1.5rem',
-                    backgroundColor: '#667eea',
+                    backgroundColor: '#6b7280',
                     color: 'white',
                     border: 'none',
                     borderRadius: '8px',
@@ -195,7 +195,7 @@ function Settings({ theme, onThemeChange }) {
               onClick={() => setShowPasswordForm(true)}
               style={{ 
                 padding: '0.75rem 1.5rem',
-                backgroundColor: '#667eea',
+                backgroundColor: '#6b7280',
                 color: 'white',
                 border: 'none',
                 borderRadius: '8px',
@@ -284,7 +284,7 @@ function Settings({ theme, onThemeChange }) {
                   disabled={isLoadingPassword}
                   style={{
                     padding: '0.75rem 1.5rem',
-                    backgroundColor: '#667eea',
+                    backgroundColor: '#6b7280',
                     color: 'white',
                     border: 'none',
                     borderRadius: '8px',
@@ -331,10 +331,10 @@ function Settings({ theme, onThemeChange }) {
               onClick={() => onThemeChange('light')}
               style={{
                 flex: 1,
-                backgroundColor: theme === 'light' ? '#667eea' : 'var(--bg-secondary)',
+                backgroundColor: theme === 'light' ? '#6b7280' : 'var(--bg-secondary)',
                 color: theme === 'light' ? '#ffffff' : 'var(--text-secondary)',
                 border: theme === 'light' ? 'none' : '1px solid var(--border-color)',
-                boxShadow: theme === 'light' ? '0 10px 25px rgba(94, 109, 255, 0.25)' : 'none'
+                boxShadow: theme === 'light' ? '0 10px 25px rgba(107, 114, 128, 0.25)' : 'none'
               }}
             >
               Light Theme

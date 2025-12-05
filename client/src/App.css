@@ -2,7 +2,7 @@
 
 .light-theme,
 :root {
-  --sidebar-bg: linear-gradient(135deg, #5a67d8 0%, #7f53ac 100%);
+  --sidebar-bg: #6b7280;
   --sidebar-color: #ffffff;
   --sidebar-hover-bg: rgba(255, 255, 255, 0.08);
   --sidebar-active-border: rgba(255, 255, 255, 0.6);
@@ -14,7 +14,7 @@
 
   --text-primary: #1f2937;
   --text-secondary: #64748b;
-  --text-accent: #5b6ef5;
+  --text-accent: #6b7280;
 
   --shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
   --shadow-soft: 0 15px 45px rgba(15, 23, 42, 0.06);
@@ -26,10 +26,10 @@
 }
 
 .dark-theme {
-  --sidebar-bg: linear-gradient(135deg, #4c1d95 0%, #1e293b 100%);
+  --sidebar-bg: #4b5563;
   --sidebar-color: #e5e7eb;
   --sidebar-hover-bg: rgba(148, 163, 184, 0.18);
-  --sidebar-active-border: #a5b4fc;
+  --sidebar-active-border: #9ca3af;
 
   --bg-primary: #020617;
   --bg-primary-accent: radial-gradient(circle at top, #020617 0%, #020617 55%, #020617 100%);
@@ -38,7 +38,7 @@
 
   --text-primary: #f9fafb;
   --text-secondary: #cbd5f5;
-  --text-accent: #c4b5fd;
+  --text-accent: #9ca3af;
 
   --shadow: 0 18px 40px rgba(15, 23, 42, 0.9);
   --shadow-soft: 0 16px 32px rgba(15, 23, 42, 0.85);
@@ -102,6 +102,17 @@ body {
   font-size: 1.5rem;
   font-weight: 600;
   color: var(--sidebar-color);
+}
+
+.sidebar-left {
+  margin-right: 2rem;
+}
+
+.sidebar-left h2 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--sidebar-color);
+  margin: 0;
 }
 
 .sidebar-nav {
@@ -174,7 +185,7 @@ body {
   display: flex;
   flex-direction: column;
   overflow-y: auto;
-  background: linear-gradient(145deg, rgba(255, 255, 255, 0.8), rgba(240, 244, 255, 0.6));
+  background: #f3f4f6;
   backdrop-filter: blur(14px);
 }
 
@@ -230,7 +241,7 @@ body {
   content: '';
   position: absolute;
   inset: -30%;
-  background: radial-gradient(circle at 20% 20%, rgba(90, 103, 216, 0.18), transparent 60%);
+  background: radial-gradient(circle at 20% 20%, rgba(107, 114, 128, 0.18), transparent 60%);
   opacity: 0;
   transition: opacity var(--transition-slow), transform var(--transition-slow);
   transform: translate3d(-10%, -10%, 0) rotate(5deg);
@@ -263,13 +274,13 @@ button {
   cursor: pointer;
   transition: transform var(--transition-medium), box-shadow var(--transition-medium), filter var(--transition-medium);
   font-size: 0.9rem;
-  box-shadow: 0 10px 25px rgba(94, 109, 255, 0.25);
+  box-shadow: 0 10px 25px rgba(107, 114, 128, 0.25);
   letter-spacing: 0.01em;
 }
 
 button:hover {
   transform: translateY(-2px) scale(1.01);
-  box-shadow: 0 16px 30px rgba(90, 103, 216, 0.35);
+  box-shadow: 0 16px 30px rgba(107, 114, 128, 0.35);
   filter: brightness(1.05);
 }
 
@@ -305,7 +316,7 @@ select:focus,
 textarea:focus {
   outline: none;
   border-color: var(--text-accent);
-  box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.2);
+  box-shadow: 0 0 0 2px rgba(107, 114, 128, 0.2);
 }
 
 input[type="password"]::-ms-reveal {
@@ -392,7 +403,7 @@ form > div {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: linear-gradient(180deg, rgba(90, 103, 216, 0.9), rgba(127, 83, 172, 0.9));
+  background: #6b7280;
   border-radius: 999px;
   border: 2px solid rgba(226, 232, 240, 0.7);
 }
