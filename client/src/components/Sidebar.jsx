@@ -5,15 +5,15 @@ function Sidebar({ onLogout }) {
   const location = useLocation();
 
   const menuItems = [
-    { id: 'dashboard', label: 'Dashboard', icon: '📊', path: '/' },
-    { id: 'scripts', label: 'Scripts', icon: '📜', path: '/scripts' },
-    { id: 'settings', label: 'Settings', icon: '⚙️', path: '/settings' },
-    { id: 'help', label: 'Help', icon: '❓', path: '/help' }
+    { id: 'dashboard', label: 'Dashboard', path: '/' },
+    { id: 'scripts', label: 'Scripts', path: '/scripts' },
+    { id: 'settings', label: 'Settings', path: '/settings' },
+    { id: 'help', label: 'Help', path: '/help' }
   ];
   
   return (
-    <div className="sidebar"> 
-      <div className="sidebar-header">
+    <div className="sidebar top-nav"> 
+      <div className="sidebar-left">
         <h2>Script Shelf</h2>
       </div>
       <nav className="sidebar-nav">
@@ -24,7 +24,6 @@ function Sidebar({ onLogout }) {
                 to={item.path}
                 className={`nav-item ${location.pathname === item.path ? 'active' : ''}`}
               >
-                <span className="nav-icon">{item.icon}</span>
                 <span className="nav-label">{item.label}</span>
               </Link>
             </li>
@@ -32,7 +31,7 @@ function Sidebar({ onLogout }) {
         </ul>
       </nav>
       
-      <div className="sidebar-footer">
+      <div className="sidebar-right">
         <a href="#" onClick={(e) => { e.preventDefault(); onLogout(); }} className="nav-item">
           <span className="nav-label">Logout</span>
         </a>
