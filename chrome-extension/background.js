@@ -1,4 +1,4 @@
-const API_URL = "https://script-shelf.onrender.com";
+const API_URL = import.meta.env.VITE_APP_URL;
 
 chrome.runtime.onInstalled.addListener(() => {
   chrome.contextMenus.create({

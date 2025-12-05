@@ -1,4 +1,4 @@
-const API_URL = "https://script-shelf.onrender.com";
+const API_URL = import.meta.env.VITE_APP_URL;
 
 const authView = document.getElementById("auth-view");
 const mainView = document.getElementById("main-view");

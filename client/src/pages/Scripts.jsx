@@ -20,7 +20,7 @@ const getAuthHeaders = () => {
   return { headers: { 'x-auth-token': token } };
 };
 
-const apiUrl = import.meta.env?.VITE_API_URL || "https://script-shelf.onrender.com";
+const apiUrl = import.meta.env.VITE_APP_URL;
 
 const mapLanguageToSyntaxHighlighter = (lang) => {
   return lang?.toLowerCase() || 'plaintext';
