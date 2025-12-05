@@ -347,7 +347,7 @@ function Settings({ theme, onThemeChange }) {
                 backgroundColor: theme === 'dark' ? '#1f2937' : 'var(--bg-secondary)',
                 color: theme === 'dark' ? '#f9fafb' : 'var(--text-secondary)',
                 border: theme === 'dark' ? 'none' : '1px solid var(--border-color)',
-                boxShadow: theme === 'dark' ? '0 10px 30px rgba(15,23,42,0.6)' : 'none'
+                boxShadow: 'none'
               }}
             >
               Dark Theme
