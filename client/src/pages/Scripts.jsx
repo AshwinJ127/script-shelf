@@ -185,8 +185,7 @@ function Scripts() {
     });
   };
 
-  const filteredSnippets = snippets.filter(s => {
-    const matchesFolder = selectedFolderId ? s.folder_id === selectedFolderId : true;
+  const filteredSnippets = (Array.isArray(snippets) ? snippets : []).filter(s => {    const matchesFolder = selectedFolderId ? s.folder_id === selectedFolderId : true;
     const matchesSearch = s.title.toLowerCase().includes(searchTerm.toLowerCase()) || 
                           s.code.toLowerCase().includes(searchTerm.toLowerCase());
     return matchesFolder && matchesSearch;
