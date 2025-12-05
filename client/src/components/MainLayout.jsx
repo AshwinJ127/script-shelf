@@ -50,7 +50,7 @@ function MainLayout({ onLogout }) {
   return (
     <div
       className={`app-layout ${theme}-theme`}
-      style={{ display: 'flex', flexDirection: 'column', height: '100vh', width: '100vw' }}
+      style={{ display: 'flex', flexDirection: 'row', height: '100vh', width: '100vw' }}
     >
       <Sidebar 
         activeItem={activeItem} 
