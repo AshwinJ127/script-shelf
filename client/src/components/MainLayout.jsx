@@ -1,10 +1,14 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import Sidebar from './Sidebar';
 
-function MainLayout({ onLogout, theme }) {
+function MainLayout({ onLogout }) {
   const location = useLocation();
   const navigate = useNavigate();
+  const [theme, setTheme] = useState(() => {
+    if (typeof window === 'undefined') return 'light';
+    return localStorage.getItem('theme') || 'light';
+  });
 
   const getActiveItem = () => {
     const path = location.pathname;
@@ -22,6 +26,17 @@ function MainLayout({ onLogout, theme }) {
     navigate(path);
   };
 
+  useEffect(() => {
+    // Persist theme
+    localStorage.setItem('theme', theme);
+
+    // Apply theme class to body for global background + variables
+    if (typeof document !== 'undefined') {
+      document.body.classList.remove('light-theme', 'dark-theme');
+      document.body.classList.add(`${theme}-theme`);
+    }
+  }, [theme]);
+
   const getActivePageLabel = () => {
     const labels = {
       dashboard: 'Dashboard',
@@ -35,7 +50,7 @@ function MainLayout({ onLogout, theme }) {
   return (
     <div
       className={`app-layout ${theme}-theme`}
-      style={{ display: 'flex', height: '100vh', width: '100vw' }}
+      style={{ display: 'flex', flexDirection: 'column', height: '100vh', width: '100vw' }}
     >
       <Sidebar 
         activeItem={activeItem} 
