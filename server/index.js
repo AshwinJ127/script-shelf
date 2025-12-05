@@ -6,7 +6,7 @@ const { Pool } = require('pg');
 const auth = require('./middleware/auth');
 
 const app = express();
-const PORT = process.env.PORT || 5050; 
+const PORT = process.env.PORT;
 
 // === Database Connection ===
 const pool = new Pool({

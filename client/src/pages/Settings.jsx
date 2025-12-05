@@ -6,7 +6,7 @@ const getAuthHeaders = () => {
   return { headers: { 'x-auth-token': token } };
 };
 
-const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5050';
+const apiUrl = import.meta.env.VITE_API_URL;
 
 function Settings({ theme, onThemeChange }) {
   const [email, setEmail] = useState('');
