@@ -105,7 +105,7 @@ function Dashboard({ navigateTo, navigateToScriptsWithLanguage, navigateToSnippe
                   borderBottom: '1px solid #e2e8f0',
                   cursor: 'pointer',
                   transition: 'background-color 0.2s',
-                  borderRadius: '4px',
+                  borderRadius: '0',
                   marginBottom: '0.25rem'
                 }}
                 onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f7fafc'}
@@ -119,14 +119,14 @@ function Dashboard({ navigateTo, navigateToScriptsWithLanguage, navigateToSnippe
                   <span style={{ color: '#718096', fontSize: '0.875rem' }}>{formatDate(s.created_at)}</span>
                 </div>
                 {s.code ? (
-                  <div style={{ marginTop: '0.5rem', borderRadius: '4px', overflow: 'hidden', maxHeight: '60px' }}>
+                  <div style={{ marginTop: '0.5rem', borderRadius: '0', overflow: 'hidden', maxHeight: '60px' }}>
                     <SyntaxHighlighter
                       language={mapLanguageToSyntaxHighlighter(s.language)}
                       style={vscDarkPlus}
                       customStyle={{
                         margin: 0,
                         padding: '0.5rem',
-                        borderRadius: '4px',
+                        borderRadius: '0',
                         fontSize: '0.75rem',
                         lineHeight: '1.4',
                         maxHeight: '60px',

@@ -54,7 +54,7 @@ function Register({ onRegisterSuccess, onSwitchToLogin }) {
         height: '100vh',
         width: '100vw',
         backgroundColor: '#f0f2f5',
-        fontFamily: "'Poppins', 'Segoe UI', sans-serif",
+        fontFamily: "'Inter', 'Segoe UI', sans-serif",
         padding: '2rem',
         gap: '1.5rem',
       }}
