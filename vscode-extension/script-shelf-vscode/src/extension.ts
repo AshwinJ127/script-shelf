@@ -10,21 +10,47 @@ interface SnippetItem extends vscode.QuickPickItem {
 export function activate(context: vscode.ExtensionContext) {
 
     let loginDisposable = vscode.commands.registerCommand('scriptshelf.login', async () => {
-        const token = await vscode.window.showInputBox({
-            placeHolder: 'Paste your Auth Token here (get it from the web dashboard)',
+        
+        const email = await vscode.window.showInputBox({
+            placeHolder: 'Enter your email',
+            prompt: 'ScriptShelf Login'
+        });
+        if (!email) return;
+
+        const password = await vscode.window.showInputBox({
+            placeHolder: 'Enter your password',
+            prompt: 'ScriptShelf Login',
             password: true 
         });
+        if (!password) return;
 
-        if (token) {
+        try {
+            vscode.window.setStatusBarMessage('ScriptShelf: Logging in...', 2000);
+            
+            const res = await axios.post(`${API_URL}/users/login`, {
+                email,
+                password
+            });
+
+            const token = res.data.token;
             await context.secrets.store('authToken', token);
-            vscode.window.showInformationMessage('ScriptShelf: Logged in!');
+            
+            vscode.window.showInformationMessage(`Logged in as ${email}!`);
+
+        } catch (err: any) {
+            console.error(err);
+            const msg = err.response?.data?.msg || 'Login failed';
+            vscode.window.showErrorMessage(`ScriptShelf Error: ${msg}`);
         }
     });
 
     let insertDisposable = vscode.commands.registerCommand('scriptshelf.insert', async () => {
         const token = await context.secrets.get('authToken');
         if (!token) {
-            vscode.window.showErrorMessage('Please login first using "ScriptShelf: Login"');
+            const selection = await vscode.window.showErrorMessage('You are not logged in.', 'Login');
+            if (selection === 'Login') {
+                vscode.commands.executeCommand('scriptshelf.login');
+            }
             return;
         }
 
@@ -53,14 +79,17 @@ export function activate(context: vscode.ExtensionContext) {
                 }
             }
         } catch (err) {
-            vscode.window.showErrorMessage('Failed to fetch snippets. Check your connection.');
+            vscode.window.showErrorMessage('Failed to fetch snippets. Token might be expired. Try logging in again.');
         }
     });
 
     let saveDisposable = vscode.commands.registerCommand('scriptshelf.save', async () => {
         const token = await context.secrets.get('authToken');
         if (!token) {
-            vscode.window.showErrorMessage('Please login first.');
+            const selection = await vscode.window.showErrorMessage('You are not logged in.', 'Login');
+            if (selection === 'Login') {
+                vscode.commands.executeCommand('scriptshelf.login');
+            }
             return;
         }
 
