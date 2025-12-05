@@ -14,8 +14,16 @@
   "contributes": {
     "commands": [
       {
-        "command": "script-shelf-vscode.helloWorld",
-        "title": "Hello World"
+        "command": "scriptshelf.login",
+        "title": "ScriptShelf: Login"
+      },
+      {
+        "command": "scriptshelf.insert",
+        "title": "ScriptShelf: Insert Snippet"
+      },
+      {
+        "command": "scriptshelf.save",
+        "title": "ScriptShelf: Save Selection"
       }
     ]
   },
