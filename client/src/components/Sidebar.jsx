@@ -1,11 +1,14 @@
 import React from 'react';
+import { Link, useLocation } from 'react-router-dom';
 
-function Sidebar({ activeItem, setActiveItem, onLogout }) {
+function Sidebar({ onLogout }) {
+  const location = useLocation();
+
   const menuItems = [
-    { id: 'dashboard', label: 'Dashboard', icon: '📊' },
-    { id: 'scripts', label: 'Scripts', icon: '📜' },
-    { id: 'settings', label: 'Settings', icon: '⚙️' },
-    { id: 'help', label: 'Help', icon: '❓' }
+    { id: 'dashboard', label: 'Dashboard', icon: '📊', path: '/' },
+    { id: 'scripts', label: 'Scripts', icon: '📜', path: '/scripts' },
+    { id: 'settings', label: 'Settings', icon: '⚙️', path: '/settings' },
+    { id: 'help', label: 'Help', icon: '❓', path: '/help' }
   ];
   
   return (
@@ -17,20 +20,20 @@ function Sidebar({ activeItem, setActiveItem, onLogout }) {
         <ul>
           {menuItems.map(item => (
             <li key={item.id}>
-              <a
-                href="#"
-                onClick={() => setActiveItem(item.id)}
-                className={`nav-item ${activeItem === item.id ? 'active' : ''}`}
+              <Link
+                to={item.path}
+                className={`nav-item ${location.pathname === item.path ? 'active' : ''}`}
               >
+                <span className="nav-icon">{item.icon}</span>
                 <span className="nav-label">{item.label}</span>
-              </a>
+              </Link>
             </li>
           ))}
         </ul>
       </nav>
       
       <div className="sidebar-footer">
-        <a href="#" onClick={onLogout} className="nav-item">
+        <a href="#" onClick={(e) => { e.preventDefault(); onLogout(); }} className="nav-item">
           <span className="nav-label">Logout</span>
         </a>
       </div>

@@ -125,6 +125,7 @@
     "proxy-agent": "^6.5.0",
     "proxy-from-env": "^1.1.0",
     "pump": "^3.0.3",
+    "react-router-dom": "^7.10.0",
     "read-package-up": "^11.0.0",
     "read-pkg": "^9.0.1",
     "readable-stream": "^2.3.8",
