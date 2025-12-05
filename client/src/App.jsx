@@ -54,6 +54,13 @@ function App() {
     navigate('/scripts');
   };
 
+  const handleNavigateTo = (path) => {
+    // Reset filters when navigating
+    setLanguageFilter(null);
+    setSelectedSnippetId(null);
+    navigate(`/${path}`);
+  };
+
   return (
     <Routes>
       {!isAuthenticated ? (
@@ -68,6 +75,7 @@ function App() {
             path="/" 
             element={
               <Dashboard 
+                navigateTo={handleNavigateTo}
                 navigateToScriptsWithLanguage={handleNavigateToScriptsWithLanguage}
                 navigateToSnippet={handleNavigateToSnippet}
               />
