@@ -224,7 +224,7 @@ function Scripts() {
                 gap: '10px',
                 transition: 'all 0.2s ease',
                 color: selectedFolderId === null ? 'var(--text-accent)' : 'var(--text-secondary)',
-                background: selectedFolderId === null ? 'rgba(90, 103, 216, 0.1)' : 'transparent',
+                background: selectedFolderId === null ? 'rgba(107, 114, 128, 0.1)' : 'transparent',
                 borderRight: selectedFolderId === null ? '3px solid var(--text-accent)' : '3px solid transparent',
                 fontWeight: selectedFolderId === null ? 600 : 500
               }}          >
@@ -244,7 +244,7 @@ function Scripts() {
                     transition: 'all 0.2s ease',
                     // Logic for specific folders
                     color: selectedFolderId === folder.id ? 'var(--text-accent)' : 'var(--text-secondary)',
-                    background: selectedFolderId === folder.id ? 'rgba(90, 103, 216, 0.1)' : 'transparent',
+                    background: selectedFolderId === folder.id ? 'rgba(107, 114, 128, 0.1)' : 'transparent',
                     borderRight: selectedFolderId === folder.id ? '3px solid var(--text-accent)' : '3px solid transparent',
                     fontWeight: selectedFolderId === folder.id ? 600 : 500
                   }}            >
@@ -336,7 +336,7 @@ function Scripts() {
                         <span style={{ 
                           fontSize: '0.75rem', 
                           padding: '2px 10px', 
-                          background: 'rgba(90, 103, 216, 0.1)', 
+                          background: 'rgba(107, 114, 128, 0.1)', 
                           borderRadius: '12px', 
                           color: 'var(--text-accent)',
                           textTransform: 'uppercase',

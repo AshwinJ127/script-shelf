@@ -155,7 +155,7 @@ function Register({ onRegisterSuccess, onSwitchToLogin }) {
             padding: '12px',
             border: 'none',
             borderRadius: '999px',
-            backgroundColor: '#6a5acd',
+            backgroundColor: '#6b7280',
             color: 'white',
             fontSize: '1rem',
             fontWeight: 600,
@@ -174,7 +174,7 @@ function Register({ onRegisterSuccess, onSwitchToLogin }) {
           Already have an account?{' '}
           <span 
             onClick={onSwitchToLogin} 
-            style={{ color: '#6a5acd', fontWeight: 600, cursor: 'pointer', letterSpacing: '0.005em' }}
+            style={{ color: '#6b7280', fontWeight: 600, cursor: 'pointer', letterSpacing: '0.005em' }}
           >
             Log in
           </span>

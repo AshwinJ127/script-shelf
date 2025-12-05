@@ -10,7 +10,7 @@ function WelcomeBanner() {
         style={{
           fontSize: '3rem',
           fontWeight: '700',
-          color: '#5b6ef5',
+          color: '#6b7280',
           margin: 0,
           letterSpacing: '-0.025em',
         }}
