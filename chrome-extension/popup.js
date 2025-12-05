@@ -1,4 +1,4 @@
-const API_URL = import.meta.env.VITE_APP_URL;
+const API_URL = import.meta.env.VITE_API_URL;
 
 const authView = document.getElementById("auth-view");
 const mainView = document.getElementById("main-view");
