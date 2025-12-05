@@ -1,14 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import Sidebar from './Sidebar';
 
-function MainLayout({ onLogout }) {
+function MainLayout({ onLogout, theme = 'light' }) {
   const location = useLocation();
   const navigate = useNavigate();
-  const [theme, setTheme] = useState(() => {
-    if (typeof window === 'undefined') return 'light';
-    return localStorage.getItem('theme') || 'light';
-  });
 
   const getActiveItem = () => {
     const path = location.pathname;
@@ -27,10 +23,8 @@ function MainLayout({ onLogout }) {
   };
 
   useEffect(() => {
-    // Persist theme
-    localStorage.setItem('theme', theme);
-
-    // Apply theme class to body for global background + variables
+    // Apply theme class to body for global background + variables.
+    // Theme is owned by App and passed down; avoid local state here to stay in sync.
     if (typeof document !== 'undefined') {
       document.body.classList.remove('light-theme', 'dark-theme');
       document.body.classList.add(`${theme}-theme`);
