@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
-import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
+import CodeSnippet from '../components/CodeSnippet';
 import { 
   Star, 
   Folder, 
@@ -22,18 +21,6 @@ const getAuthHeaders = () => {
 };
 
 const apiUrl = import.meta.env.VITE_API_URL;
-
-const mapLanguageToSyntaxHighlighter = (lang) => {
-  const languageMap = {
-    'javascript': 'javascript',
-    'python': 'python',
-    'sql': 'sql',
-    'css': 'css',
-    'html': 'html',
-    'text': 'plaintext'
-  };
-  return languageMap[lang?.toLowerCase()] || 'plaintext';
-};
 
 function Scripts() {
   const [snippets, setSnippets] = useState([]);
@@ -197,9 +184,16 @@ function Scripts() {
     });
   };
 
-  const filteredSnippets = (Array.isArray(snippets) ? snippets : []).filter(s => {    const matchesFolder = selectedFolderId ? s.folder_id === selectedFolderId : true;
-    const matchesSearch = s.title.toLowerCase().includes(searchTerm.toLowerCase()) || 
-                          s.code.toLowerCase().includes(searchTerm.toLowerCase());
+  // Filter snippets based on selected folder and search term
+  const filteredSnippets = (Array.isArray(snippets) ? snippets : []).filter(snippet => {
+    const matchesFolder = selectedFolderId 
+      ? snippet.folder_id === selectedFolderId 
+      : true;
+    
+    const searchLower = searchTerm.toLowerCase();
+    const matchesSearch = snippet.title.toLowerCase().includes(searchLower) || 
+                          snippet.code.toLowerCase().includes(searchLower);
+    
     return matchesFolder && matchesSearch;
   });
 
@@ -369,21 +363,11 @@ function Scripts() {
                       </div>
                     </div>
 
-                    <SyntaxHighlighter
-                      language={mapLanguageToSyntaxHighlighter(snippet.language)}
-                      style={vscDarkPlus}
-                      customStyle={{
-                        margin: 0,
-                        padding: '1rem',
-                        borderRadius: '0',
-                        fontSize: '0.85rem',
-                        lineHeight: '1.4'
-                      }}
-                      showLineNumbers={false}
-                      PreTag="div"
-                    >
-                      {snippet.code}
-                    </SyntaxHighlighter>
+                    <CodeSnippet
+                      code={snippet.code}
+                      language={snippet.language}
+                      size="medium"
+                    />
                   </div>
                 ))
               )}
@@ -501,24 +485,13 @@ function Scripts() {
                         {new Date(v.edited_at).toLocaleString()}
                       </span>
                     </div>
-                    <SyntaxHighlighter
-                      language={mapLanguageToSyntaxHighlighter(selectedSnippetForHistory?.language || 'plaintext')}
-                      style={vscDarkPlus}
-                      customStyle={{
-                        margin: 0,
-                        padding: '1rem',
-                        borderRadius: '0',
-                        fontSize: '0.85rem',
-                        lineHeight: '1.4',
-                        maxHeight: '150px',
-                        overflow: 'hidden',
-                        opacity: 0.8
-                      }}
-                      showLineNumbers={false}
-                      PreTag="div"
-                    >
-                      {v.code}
-                    </SyntaxHighlighter>
+                    <CodeSnippet
+                      code={v.code}
+                      language={selectedSnippetForHistory?.language || 'plaintext'}
+                      size="medium"
+                      maxHeight={150}
+                      opacity={0.8}
+                    />
                   </div>
                 ))
               )}
