@@ -53,7 +53,7 @@ You’ll need access to the shared setup doc to fully configure the environment.
 
 Pull requests and issues are welcome. Backend-related changes may require access to the private setup instructions. If you're unsure, just ask or open an issue first.
 
-##Project Diagrams
+## Project Diagrams
 
 1. User Login Authentication Sequence Diagram
 
