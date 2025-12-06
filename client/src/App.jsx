@@ -7,23 +7,24 @@ import Dashboard from './pages/Dashboard';
 import Scripts from './pages/Scripts';
 import Settings from './pages/Settings'; 
 
+const SUPPORT_EMAIL = "scriptshelf123@gmail.com";
+
+const SUPPORT_URL = `https://mail.google.com/mail/?view=cm&fs=1&to=${SUPPORT_EMAIL}&su=ScriptShelf Support`;
+
 const Help = () => (
   <div className="dashboard-content">
     <div className="card">
       <h3>Help & Support</h3>
       <p>
-        For support, please contact us at:{' '}
+        For support, please contact us at:{" "}
         <a 
-          href="https://mail.google.com/mail/?view=cm&fs=1&to=scriptshelf123@gmail.com&su=Script%20Shelf%20Support"
+          href={SUPPORT_URL}
           target="_blank"
           rel="noopener noreferrer"
-          style={{
-            color: '#6a5acd',
-            textDecoration: 'underline',
-            fontWeight: 500
-          }}
+          className="support-link"
+          aria-label="Email ScriptShelf support"
         >
-          scriptshelf123@gmail.com
+          {SUPPORT_EMAIL}
         </a>
       </p>
     </div>
