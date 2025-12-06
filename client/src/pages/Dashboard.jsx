@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
-import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
+import CodeSnippet from '../components/CodeSnippet';
 
 const getAuthHeaders = () => {
   const token = localStorage.getItem('authToken');
@@ -9,19 +8,6 @@ const getAuthHeaders = () => {
 };
 
 const apiUrl = import.meta.env.VITE_API_URL;
-
-// Map language names to syntax highlighter language identifiers
-const mapLanguageToSyntaxHighlighter = (lang) => {
-  const languageMap = {
-    'javascript': 'javascript',
-    'python': 'python',
-    'sql': 'sql',
-    'css': 'css',
-    'html': 'html',
-    'text': 'plaintext'
-  };
-  return languageMap[lang?.toLowerCase()] || 'plaintext';
-};
 
 function Dashboard({ navigateTo, navigateToScriptsWithLanguage, navigateToSnippet }) {
   const [snippets, setSnippets] = useState([]);
@@ -118,27 +104,17 @@ function Dashboard({ navigateTo, navigateToScriptsWithLanguage, navigateToSnippe
                   </div>
                   <span style={{ color: '#718096', fontSize: '0.875rem' }}>{formatDate(s.created_at)}</span>
                 </div>
-                {s.code ? (
+                {s.code && (
                   <div style={{ marginTop: '0.5rem', borderRadius: '0', overflow: 'hidden', maxHeight: '60px' }}>
-                    <SyntaxHighlighter
-                      language={mapLanguageToSyntaxHighlighter(s.language)}
-                      style={vscDarkPlus}
-                      customStyle={{
-                        margin: 0,
-                        padding: '0.5rem',
-                        borderRadius: '0',
-                        fontSize: '0.75rem',
-                        lineHeight: '1.4',
-                        maxHeight: '60px',
-                        overflow: 'hidden'
-                      }}
-                      showLineNumbers={false}
-                      PreTag="div"
-                    >
-                      {s.code.length > 120 ? s.code.slice(0, 120) + '…' : s.code}
-                    </SyntaxHighlighter>
+                    <CodeSnippet
+                      code={s.code}
+                      language={s.language}
+                      size="small"
+                      maxHeight={60}
+                      maxLength={120}
+                    />
                   </div>
-                ) : null}
+                )}
               </li>
             ))}
           </ul>
