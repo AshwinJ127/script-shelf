@@ -53,6 +53,17 @@ You’ll need access to the shared setup doc to fully configure the environment.
 
 Pull requests and issues are welcome. Backend-related changes may require access to the private setup instructions. If you're unsure, just ask or open an issue first.
 
+##Project Diagrams
+
+1. User Login Authentication Sequence Diagram
+
+(https://github.com/user-attachments/assets/bec67731-96d5-4315-96f6-d2ff9cdfc6b4)
+
+2. Databse Design Entity Relationship Diagram
+
+(https://github.com/user-attachments/assets/89b3c4a1-a662-4aed-8e74-538348c0fce3)
+
+
 ## License
 
 This project is licensed under the MIT License.
